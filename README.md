@@ -35,16 +35,16 @@ cd EzDBOverview
 
 ```bash
 cd Backend
-npm install      # Install necessary packages
-nodemon index.js # Start the backend server
+npm install
+nodemon index.js
 ```
 
 ### **4. Frontend Setup**:
 
 ```bash
 cd EzDBOverview
-npm install      # Install necessary packages
-npm start        # Start the frontend development server
+npm install
+npm start
 ```
 
 Your web app should now be running on `http://localhost:3000/` or the next available port, and you should be able to view and navigate through your database structure.
