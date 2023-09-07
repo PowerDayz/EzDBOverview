@@ -84,6 +84,10 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
     setInventoryOpen(false);
   };
 
+  const handleTextMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   // data ig lmao
   const moneyData = JSON.parse(item.money);
 
@@ -118,43 +122,43 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
           {expanded && (
             <>
               <Grid item xs={3}>
-                <Typography className="truncate"><strong>Citizen ID:</strong> {item.citizenid}</Typography>
-                <Typography className="truncate"><strong>CID:</strong> {item.cid}</Typography>
-                <Typography className="truncate"><strong>License:</strong> {item.license}</Typography>
-                <Typography className="truncate"><strong>Position:</strong> {item.position}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Citizen ID:</strong> {item.citizenid}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>CID:</strong> {item.cid}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>License:</strong> {item.license}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Position:</strong> {item.position}</Typography>
                 <Button onClick={handleOpenInventory}>Open Inventory</Button>
               </Grid>
               <Grid item xs={3}>
-                <Typography className="truncate">
+                <Typography className="truncate" onClick={handleTextMouseDown}>
                     <strong>Cash:</strong> {formatMoney(moneyData.cash, 'USD')}
                 </Typography>
-                <Typography className="truncate">
+                <Typography className="truncate" onClick={handleTextMouseDown}>
                     <strong>Bank:</strong> {formatMoney(moneyData.bank)}
                 </Typography>
-                <Typography className="truncate">
+                <Typography className="truncate" onClick={handleTextMouseDown}>
                     <strong>Crypto:</strong> {formatMoney(moneyData.crypto, 'BTC', true)} {/* BTC is just an example.. */}
                 </Typography>
-                <Typography className="truncate"><strong>Job:</strong> {jobLabel} - {gradeLabel}</Typography>
-                <Typography className="truncate"><strong>Gang:</strong> {gangLabel} - {gangGradeLabel}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Job:</strong> {jobLabel} - {gradeLabel}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Gang:</strong> {gangLabel} - {gangGradeLabel}</Typography>
               </Grid>
               <Grid item xs={3}>
-                <Typography className="truncate"><strong>Blood Type:</strong> {metadata.bloodtype}</Typography>
-                <Typography className="truncate"><strong>Callsign:</strong> {metadata.callsign}</Typography>
-                <Typography className="truncate"><strong>Stress:</strong> {metadata.stress}%</Typography>
-                <Typography className="truncate"><strong>Hunger:</strong> {metadata.hunger.toFixed(2)}%</Typography>
-                <Typography className="truncate"><strong>Thirst:</strong> {metadata.thirst.toFixed(2)}%</Typography>
-                <Typography className="truncate"><strong>Driver License:</strong> {metadata.licences.driver ? 'Yes' : 'No'}</Typography>
-                <Typography className="truncate"><strong>Weapon License:</strong> {metadata.licences.weapon ? 'Yes' : 'No'}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Blood Type:</strong> {metadata.bloodtype}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Callsign:</strong> {metadata.callsign}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Stress:</strong> {metadata.stress}%</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Hunger:</strong> {metadata.hunger.toFixed(2)}%</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Thirst:</strong> {metadata.thirst.toFixed(2)}%</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Driver License:</strong> {metadata.licences.driver ? 'Yes' : 'No'}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Weapon License:</strong> {metadata.licences.weapon ? 'Yes' : 'No'}</Typography>
               </Grid>
               <Grid item xs={3}>
-                <Typography className="truncate"><strong>First Name:</strong> {charInfo.firstname}</Typography>
-                <Typography className="truncate"><strong>Last Name:</strong> {charInfo.lastname}</Typography>
-                <Typography className="truncate"><strong>Birthdate:</strong> {charInfo.birthdate}</Typography>
-                <Typography className="truncate"><strong>Nationality:</strong> {charInfo.nationality}</Typography>
-                <Typography className="truncate"><strong>Phone:</strong> {charInfo.phone}</Typography>
-                <Typography className="truncate"><strong>Gender:</strong> {charInfo.gender === 0 ? 'Male' : 'Female'}</Typography>
-                <Typography className="truncate"><strong>Backstory:</strong> {charInfo.backstory}</Typography>
-                <Typography className="truncate"><strong>Account:</strong> {charInfo.account}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>First Name:</strong> {charInfo.firstname}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Last Name:</strong> {charInfo.lastname}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Birthdate:</strong> {charInfo.birthdate}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Nationality:</strong> {charInfo.nationality}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Phone:</strong> {charInfo.phone}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Gender:</strong> {charInfo.gender === 0 ? 'Male' : 'Female'}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Backstory:</strong> {charInfo.backstory}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Account:</strong> {charInfo.account}</Typography>
               </Grid>
             </>
           )}
