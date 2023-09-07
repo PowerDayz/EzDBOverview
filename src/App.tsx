@@ -66,6 +66,49 @@ function InventoryModal({ inventory, open, handleClose, darkMode, onClose }: { i
   );
 }
 
+function MapModal({ open, handleClose, position, darkMode }: { open: boolean, handleClose: () => void, position: { x: number, y: number, z: number }, darkMode: boolean }) {
+  const mapBounds = {
+    topLeft: {x: -5700, y: 8400},
+    bottomRight: {x: 6600, y: -4000}
+  };
+  
+  const xOffset = 917;
+  const yOffset = 1348;
+
+  const xPercentage = (position.x - mapBounds.topLeft.x) / (mapBounds.bottomRight.x - mapBounds.topLeft.x);
+  const yPercentage = 1 - (position.y - mapBounds.topLeft.y) / (mapBounds.bottomRight.y - mapBounds.topLeft.y);
+  const xPositionOnImage = xPercentage * 1000 + xOffset - 12.5;
+  const yPositionOnImage = yPercentage * 1000 + yOffset - 12.5;
+
+  console.log(`xPositionOnImage: ${xPositionOnImage}`);
+  console.log(`yPositionOnImage: ${yPositionOnImage}`);
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="map-modal-title"
+      aria-describedby="map-modal-description"
+    >
+      <Box 
+        style={{ 
+          width: '80%', 
+          margin: '5% auto', 
+          backgroundColor: darkMode ? 'rgb(51,51,51,0.8)' : 'rgb(255,255,255,0.8)', 
+          padding: '20px', 
+          outline: 'none', 
+          color: darkMode ? 'white' : 'black' 
+        }}
+      >
+        <Typography id="map-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Player Coords: {position.x}, {position.y}, {position.z}</Typography>
+        <img src="/map/gtav-map-atlas-huge.jpg" alt="GTA Map" style={{ maxWidth: '80%', maxHeight: '700px', position: 'relative' }}/>
+        <img src="/map/marker.png" alt="Marker" style={{ position: 'absolute', left: xOffset, top: yOffset, width: '25px', height: '20px' }} />
+        <Typography>Will add a marker at the right place later.. for now this is fine</Typography>
+      </Box>
+    </Modal>
+  );
+}
+
 function formatMoney(value: number | bigint, currencyCode = 'USD', isCrypto = false) {
   return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -78,6 +121,7 @@ function formatMoney(value: number | bigint, currencyCode = 'USD', isCrypto = fa
 function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
 
   const handleOpenInventory = (e: React.MouseEvent) => {
     e.stopPropagation(); // Makes sure the PlayerCard doesn't close when clicking the button
@@ -88,6 +132,22 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
     setInventoryOpen(false);
   };
 
+  const handleOpenMap = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Makes sure the PlayerCard doesn't close when clicking the button
+    setMapOpen(true);
+  };  
+  
+  const handleCloseMap = () => {
+    setMapOpen(false);
+  };
+
+  const [position, setPosition] = useState({x: 0, y: 0, z: 0});
+
+  useEffect(() => {
+    const pos = JSON.parse(item.position);
+    setPosition(pos);
+  }, [item.position]);
+  
   const handleTextMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
@@ -129,7 +189,7 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
                 <Typography className="truncate" onClick={handleTextMouseDown}><strong>Citizen ID:</strong> {item.citizenid}</Typography>
                 <Typography className="truncate" onClick={handleTextMouseDown}><strong>CID:</strong> {item.cid}</Typography>
                 <Typography className="truncate" onClick={handleTextMouseDown}><strong>License:</strong> {item.license}</Typography>
-                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Position:</strong> {item.position}</Typography>
+                <Button onClick={handleOpenMap}>Open Map</Button>
                 <Button onClick={(e) => handleOpenInventory(e)}>Open Inventory</Button>
               </Grid>
               <Grid item xs={3}>
@@ -179,6 +239,13 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
             event.stopPropagation();
           }
         }}
+      />
+
+      <MapModal
+        open={mapOpen}
+        handleClose={handleCloseMap}
+        position={position}
+        darkMode={darkMode}
       />
     </>
   );
