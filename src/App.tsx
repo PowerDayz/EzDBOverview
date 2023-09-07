@@ -181,6 +181,7 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
         <Grid container spacing={2}>
             <Grid item container xs={12} justifyContent="space-between">
               <Avatar>{item.name[0]}</Avatar>
+              <Typography variant="h6" component="div">{charInfo.firstname} {charInfo.lastname}</Typography>
               <Typography variant="h5" component="div">{item.name}</Typography>
             </Grid>
           {expanded && (
@@ -320,7 +321,7 @@ function App() {
             variant="standard"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search for player by name..."
+            placeholder="Search for player by steam name..."
             style={{ width: '100%', marginBottom: theme.spacing(2) }}
           />
         </div>
