@@ -9,9 +9,10 @@
 - **Customizable:** Modify and adapt the code to fit your needs.
 
 - ![Picture1](https://github.com/PowerDayz/EzDBOverview/assets/50378849/809f3f3c-ccf6-4cd8-8832-d4305a8c3ece)
-- ![Picture2](https://github.com/PowerDayz/EzDBOverview/assets/50378849/fd942231-a16e-4744-9884-c11cc8a4c368)
+- ![Picture2](https://github.com/PowerDayz/EzDBOverview/assets/50378849/d0a77f22-0835-4cf0-8403-03a74556f8a7)
 - ![Picture3](https://github.com/PowerDayz/EzDBOverview/assets/50378849/47b08fe9-5271-4552-b099-bf47d138da86)
 - ![Picture4](https://github.com/PowerDayz/EzDBOverview/assets/50378849/5cc37780-d644-4aab-9683-3e7bc960de7a)
+- ![Picture5](https://github.com/PowerDayz/EzDBOverview/assets/50378849/d092b8bd-3dd0-4688-9214-824de8216cc8)
 
 ## **Pre-requisites**:
 
