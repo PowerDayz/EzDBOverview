@@ -21,7 +21,7 @@ interface DataItem {
   name: string;
 }
 
-function InventoryModal({ inventory, open, handleClose, darkMode }: { inventory: any[], open: boolean, handleClose: () => void, darkMode: boolean }) {
+function InventoryModal({ inventory, open, handleClose, darkMode, onClose }: { inventory: any[], open: boolean, handleClose: () => void, darkMode: boolean, onClose?: (event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => void}) {
   const slotSize = 125; // Square size for each slot (125 looks the best in my opinion)
   const inventorySlots = 41; // Max inventory slots (Change this if you have a different max inventory slots)
 
@@ -33,7 +33,10 @@ function InventoryModal({ inventory, open, handleClose, darkMode }: { inventory:
   return (
     <Modal
       open={open}
-      onClose={handleClose}
+      onClose={(event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => {
+        if (onClose) onClose(event, reason);
+        handleClose();
+      }}
       aria-labelledby="inventory-modal-title"
       aria-describedby="inventory-modal-description"
     >
@@ -41,7 +44,7 @@ function InventoryModal({ inventory, open, handleClose, darkMode }: { inventory:
         style={{ 
           width: '80%', 
           margin: '5% auto', 
-          backgroundColor: darkMode ? '#333' : 'white', 
+          backgroundColor: darkMode ? 'rgb(51,51,51,0.8)' : 'rgb(255,255,255,0.8)', 
           padding: '20px', 
           outline: 'none', 
           color: darkMode ? 'white' : 'black' 
@@ -76,9 +79,10 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
 
-  const handleOpenInventory = () => {
+  const handleOpenInventory = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Makes sure the PlayerCard doesn't close when clicking the button
     setInventoryOpen(true);
-  };
+  };  
 
   const handleCloseInventory = () => {
     setInventoryOpen(false);
@@ -126,7 +130,7 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
                 <Typography className="truncate" onClick={handleTextMouseDown}><strong>CID:</strong> {item.cid}</Typography>
                 <Typography className="truncate" onClick={handleTextMouseDown}><strong>License:</strong> {item.license}</Typography>
                 <Typography className="truncate" onClick={handleTextMouseDown}><strong>Position:</strong> {item.position}</Typography>
-                <Button onClick={handleOpenInventory}>Open Inventory</Button>
+                <Button onClick={(e) => handleOpenInventory(e)}>Open Inventory</Button>
               </Grid>
               <Grid item xs={3}>
                 <Typography className="truncate" onClick={handleTextMouseDown}>
@@ -170,6 +174,11 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
         open={inventoryOpen}
         handleClose={handleCloseInventory}
         darkMode={darkMode}
+        onClose={(event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => {
+          if (reason === "backdropClick") {
+            event.stopPropagation();
+          }
+        }}
       />
     </>
   );
