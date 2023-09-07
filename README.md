@@ -29,7 +29,7 @@ cd EzDBOverview
 ### **2. Database Connection**:
 
 - Goto backend/index.js
-- Change db Connection to your db
+- Edit the createConnection to match your database
 
 ### **3. Backend Setup**:
 
