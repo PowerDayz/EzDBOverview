@@ -26,7 +26,12 @@ git clone https://github.com/PowerDayz/EzDBOverview
 cd EzDBOverview
 ```
 
-### **2. Backend Setup**:
+### **2. Database Connection**:
+
+- Goto backend/index.js
+- Change db Connection to your db
+
+### **3. Backend Setup**:
 
 ```bash
 cd Backend
@@ -34,7 +39,7 @@ npm install      # Install necessary packages
 nodemon index.js # Start the backend server
 ```
 
-### **3. Frontend Setup**:
+### **4. Frontend Setup**:
 
 ```bash
 cd EzDBOverview
@@ -43,11 +48,6 @@ npm start        # Start the frontend development server
 ```
 
 Your web app should now be running on `http://localhost:3000/` or the next available port, and you should be able to view and navigate through your database structure.
-
-## **Database Connection**:
-
-- Goto backend/index.js
-- Change db Connection to your db
 
 ## **Contributing**:
 
