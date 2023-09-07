@@ -8,7 +8,7 @@
 - **Intuitive Interface:** Navigate your database with ease.
 - **Customizable:** Modify and adapt the code to fit your needs.
 
-- ![Picture1](https://github.com/PowerDayz/EzDBOverview/assets/50378849/809f3f3c-ccf6-4cd8-8832-d4305a8c3ece)
+- ![Picture1](https://github.com/PowerDayz/EzDBOverview/assets/50378849/7b24b5e9-6150-4a54-b474-11e77d2bfaf1)
 - ![Picture2](https://github.com/PowerDayz/EzDBOverview/assets/50378849/d0a77f22-0835-4cf0-8403-03a74556f8a7)
 - ![Picture3](https://github.com/PowerDayz/EzDBOverview/assets/50378849/47b08fe9-5271-4552-b099-bf47d138da86)
 - ![Picture5](https://github.com/PowerDayz/EzDBOverview/assets/50378849/d092b8bd-3dd0-4688-9214-824de8216cc8)
