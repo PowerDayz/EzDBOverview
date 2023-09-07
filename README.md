@@ -17,8 +17,8 @@
 ### **1. Clone the Repository**:
 
 ```bash
-git clone [Your-GitHub-Repo-URL] 
-cd [Repo-Name]
+git clone https://github.com/PowerDayz/EzDBOverview
+cd EzDBOverview
 ```
 
 ### **2. Backend Setup**:
