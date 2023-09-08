@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
-import { Container, Grid, Paper, Typography, Avatar, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, Button, TextField } from '@mui/material';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { Container, Grid, Paper, Typography, Avatar, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, Button, TextField, Tooltip } from '@mui/material';
+import { Brightness4, Brightness7, Analytics } from '@mui/icons-material';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
+import { Tooltip as RechartsTooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 
@@ -19,6 +22,101 @@ interface DataItem {
   citizenid: string;
   id: number;
   name: string;
+}
+
+type AnalyticsData = {
+  richestPlayer: string;
+  richestPlayerMoney: number;
+  averageMoney: number;
+  totalPlayers: number;
+  jobWealth: {
+      job: string;
+      averageWealth: number;
+  }[];
+};
+
+type JobWealthData = {
+  totalWealth: number;
+  count: number;
+  averageWealth: number;
+};
+
+function getWealthPerJob(data: DataItem[]) {
+  return data.reduce((acc, item) => {
+    const jobData = typeof item.job === 'string' ? JSON.parse(item.job) : item.job;
+    const jobLabel = jobData.label;
+    const moneyData = typeof item.money === 'string' ? JSON.parse(item.money) : item.money;
+    const totalWealth = moneyData.bank + moneyData.cash;
+
+    if (!acc[jobLabel]) {
+      acc[jobLabel] = {
+        totalWealth: 0,
+        count: 0,
+        averageWealth: 0
+      };
+    }
+
+    acc[jobLabel].totalWealth += totalWealth;
+    acc[jobLabel].count += 1;
+    acc[jobLabel].averageWealth = acc[jobLabel].totalWealth / acc[jobLabel].count;
+
+    return acc;
+  }, {} as Record<string, JobWealthData>);
+}
+
+function AnalyticsModal({ open, handleClose, data, darkMode }: { open: boolean, handleClose: () => void, data: AnalyticsData, darkMode: boolean }) {
+  const dataForBarChart = [
+    { name: 'Richest Player', value: data.richestPlayerMoney },
+    { name: 'Average Wealth', value: data.averageMoney },
+  ];
+  
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="analytics-modal-title"
+      aria-describedby="analytics-modal-description"
+    >
+      <Box 
+        style={{ 
+          width: '60%', 
+          margin: '5% auto', 
+          backgroundColor: darkMode ? 'rgb(51,51,51,0.8)' : 'rgb(255,255,255,0.8)', 
+          padding: '20px', 
+          outline: 'none', 
+          color: darkMode ? 'white' : 'black' 
+        }}
+      >
+        <Typography id="analytics-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Statistics</Typography>
+        <Typography><strong>Richest Player:</strong> {data.richestPlayer} - {formatMoney(data.richestPlayerMoney || 0, 'USD')}</Typography>
+        <Typography><strong>Average Money:</strong> {formatMoney(data.averageMoney)}</Typography>
+        <Typography><strong>Total Players:</strong> {data.totalPlayers}</Typography>
+
+        <Grid
+          container
+          direction="row"
+          justifyContent="space-around"
+          alignItems="center"
+        >
+          <RadarChart cx={250} cy={200} outerRadius={150} width={500} height={400} data={data.jobWealth}>
+            <PolarGrid />
+            <PolarAngleAxis dataKey="job" />
+            <PolarRadiusAxis domain={[0, 50000]} /> {/* dont know why i need a max value tbh.. cus im pretty sure its just taking the richest plyer's money for the max. */}
+            <Radar name="Job Wealth" dataKey="averageWealth" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+          </RadarChart>
+
+          <BarChart width={400} height={400} data={dataForBarChart}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <RechartsTooltip />
+            <Legend />
+            <Bar dataKey="value" name='Player Wealth' fill="#8884d8" fillOpacity={0.6} />
+          </BarChart>
+        </Grid>
+      </Box>
+    </Modal>
+  );
 }
 
 function InventoryModal({ inventory, open, handleClose, darkMode, onClose }: { inventory: any[], open: boolean, handleClose: () => void, darkMode: boolean, onClose?: (event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => void}) {
@@ -293,26 +391,87 @@ function App() {
   }, data[0] || {});
   const charInfoRichestPlayer = typeof richestPlayer.charinfo === 'string' ? JSON.parse(richestPlayer.charinfo) : richestPlayer.charinfo;
 
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
+    richestPlayer: '',
+    richestPlayerMoney: 0,
+    averageMoney: 0,
+    totalPlayers: 0,
+    jobWealth: []
+  });
+
+  useEffect(() => {
+    // If data is populated
+    if(data.length > 0) {
+        // Find the richest player
+        const richestPlayerData = data.reduce((max, player) => {
+          const playerTotal = JSON.parse(player.money).cash + JSON.parse(player.money).bank;
+          const maxTotal = JSON.parse(max.money).cash + JSON.parse(max.money).bank;
+          return playerTotal > maxTotal ? player : max;
+        }, data[0]);
+  
+        // Get name of the richest player from their charinfo
+        const charInfoRichest = typeof richestPlayerData.charinfo === 'string' ? JSON.parse(richestPlayerData.charinfo) : richestPlayerData.charinfo;
+        const richestPlayerName = `${richestPlayerData.name} / ${charInfoRichest.firstname} ${charInfoRichest.lastname}`;
+  
+        // Calculate wealth per job
+        const jobWealthRaw = getWealthPerJob(data);
+        const jobWealth = Object.entries(jobWealthRaw).map(([job, stats]) => {
+            return { job, averageWealth: stats.averageWealth };
+        });
+
+        // Calculate richest player's total money
+        const richestPlayerMoney = JSON.parse(richestPlayerData.money).cash + JSON.parse(richestPlayerData.money).bank;
+  
+        // Calculate average money
+        const totalMoney = data.reduce((sum, player) => sum + JSON.parse(player.money).cash + JSON.parse(player.money).bank, 0);
+        const averageMoney = totalMoney / data.length;
+  
+        // Now set the analytics data
+        setAnalyticsData({
+          richestPlayer: richestPlayerName,
+          richestPlayerMoney: richestPlayerMoney,
+          averageMoney: averageMoney,
+          totalPlayers: data.length,
+          jobWealth: jobWealth
+        });        
+    }
+  }, [data]);
+
+  const handleOpenAnalytics = () => {
+    setAnalyticsOpen(true);
+  };
+
+  const handleCloseAnalytics = () => {
+    setAnalyticsOpen(false);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container>
         <AppBar position="fixed">
           <Toolbar style={{ display: 'flex' }}>
-            <IconButton onClick={() => setDarkMode(!darkMode)} edge="start" color="inherit">
-              {darkMode ? <Brightness7 /> : <Brightness4 />}
-            </IconButton>
+            <Tooltip title="Change Theme!" placement='right' arrow>
+              <IconButton onClick={() => setDarkMode(!darkMode)} edge="start" color="inherit">
+                {darkMode ? <Brightness7 /> : <Brightness4 />}
+              </IconButton>
+            </Tooltip>
   
             <Box flexGrow={1} />
-  
-            {richestPlayer && charInfoRichestPlayer && (
-              <>
-                <Typography variant="h6" style={{ marginLeft: theme.spacing(1) }}><strong>Richest Player:</strong></Typography>
-                <Typography variant="h6" style={{ marginLeft: theme.spacing(1) }}>{`${richestPlayer.name} / ${charInfoRichestPlayer.firstname} ${charInfoRichestPlayer.lastname}`}</Typography>
-                <Typography variant="h6" style={{ marginLeft: theme.spacing(1) }}><strong>Cash: </strong>{formatMoney(JSON.parse(richestPlayer.money).cash, 'USD')}</Typography>
-                <Typography variant="h6" style={{ marginLeft: theme.spacing(1) }}><strong>Bank: </strong>{formatMoney(JSON.parse(richestPlayer.money).bank, 'USD')}</Typography>
-              </>
-            )}
+
+            <Tooltip title="Server Statistics" placement='left' arrow>
+              <IconButton onClick={handleOpenAnalytics} edge="start" color="inherit">
+                <Analytics />
+              </IconButton>
+            </Tooltip>
+
+            <AnalyticsModal
+              open={analyticsOpen}
+              handleClose={handleCloseAnalytics}
+              data={analyticsData}
+              darkMode={darkMode}
+            />
           </Toolbar>
         </AppBar>
   
