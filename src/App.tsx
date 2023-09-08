@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './App.css';
 import { Container, Grid, Paper, Typography, Avatar, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, Button, TextField, Tooltip } from '@mui/material';
 import { Brightness4, Brightness7, Analytics } from '@mui/icons-material';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import { Tooltip as RechartsTooltip } from 'recharts';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 
@@ -27,6 +26,7 @@ interface DataItem {
 type AnalyticsData = {
   richestPlayer: string;
   richestPlayerMoney: number;
+  totalMoney: number;
   averageMoney: number;
   totalPlayers: number;
   jobWealth: {
@@ -88,9 +88,24 @@ function AnalyticsModal({ open, handleClose, data, darkMode }: { open: boolean, 
         }}
       >
         <Typography id="analytics-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Statistics</Typography>
-        <Typography><strong>Richest Player:</strong> {data.richestPlayer} - {formatMoney(data.richestPlayerMoney || 0, 'USD')}</Typography>
-        <Typography><strong>Average Money:</strong> {formatMoney(data.averageMoney)}</Typography>
-        <Typography><strong>Total Players:</strong> {data.totalPlayers}</Typography>
+        <Grid
+          container
+          direction="row"
+          justifyContent="space-between"
+          alignItems="top"
+          sx={{ marginBottom: 2.5 }}
+        >
+          <Grid item>
+            <Typography><strong>Richest Player:</strong> {data.richestPlayer} - {formatMoney(data.richestPlayerMoney || 0, 'USD')}</Typography>
+            <Typography><strong>Average Money:</strong> {formatMoney(data.averageMoney)}</Typography>
+            <Typography><strong>Total Players:</strong> {data.totalPlayers}</Typography>
+          </Grid>
+          <Grid item>
+            <Typography><strong>Server Cash Flow:</strong> {formatMoney(data.totalMoney, 'USD')}</Typography>
+            <Typography><strong>Richest Player % of Cash Flow:</strong> {(data.richestPlayerMoney / data.totalMoney * 100).toFixed(2)}%</Typography>
+            {/*<Typography><strong>Total Players:</strong> {data.totalPlayers}</Typography>*/}
+          </Grid>
+        </Grid>
 
         <Grid
           container
@@ -102,16 +117,15 @@ function AnalyticsModal({ open, handleClose, data, darkMode }: { open: boolean, 
             <PolarGrid />
             <PolarAngleAxis dataKey="job" />
             <PolarRadiusAxis domain={[0, 50000]} /> {/* dont know why i need a max value tbh.. cus im pretty sure its just taking the richest plyer's money for the max. */}
-            <Radar name="Job Wealth" dataKey="averageWealth" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+            <Radar name="Job Wealth" dataKey="averageWealth" stroke={darkMode ? "#8884d8" : "#3976CE"} fill={darkMode ? "#8884d8" : "#3976CE"} fillOpacity={0.6} />
           </RadarChart>
 
           <BarChart width={400} height={400} data={dataForBarChart}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
+            <XAxis dataKey="name" /> 
             <YAxis />
             <RechartsTooltip />
-            <Legend />
-            <Bar dataKey="value" name='Player Wealth' fill="#8884d8" fillOpacity={0.6} />
+            <Bar dataKey="value" name='Player Wealth' fill={darkMode ? "#8884d8" : "#3976CE"} fillOpacity={0.6} />
           </BarChart>
         </Grid>
       </Box>
@@ -383,18 +397,11 @@ function App() {
     setFilteredData(results);
   }, [searchTerm, data]);
 
-  const richestPlayer = data.reduce((acc, curr) => {
-    if(!acc) return curr;
-    const accTotal = JSON.parse(acc.money).cash + JSON.parse(acc.money).bank;
-    const currTotal = JSON.parse(curr.money).cash + JSON.parse(curr.money).bank;
-    return accTotal > currTotal ? acc : curr;
-  }, data[0] || {});
-  const charInfoRichestPlayer = typeof richestPlayer.charinfo === 'string' ? JSON.parse(richestPlayer.charinfo) : richestPlayer.charinfo;
-
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
     richestPlayer: '',
     richestPlayerMoney: 0,
+    totalMoney: 0,
     averageMoney: 0,
     totalPlayers: 0,
     jobWealth: []
@@ -432,6 +439,7 @@ function App() {
           richestPlayer: richestPlayerName,
           richestPlayerMoney: richestPlayerMoney,
           averageMoney: averageMoney,
+          totalMoney: totalMoney,
           totalPlayers: data.length,
           jobWealth: jobWealth
         });        
@@ -447,53 +455,79 @@ function App() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container>
-        <AppBar position="fixed">
-          <Toolbar style={{ display: 'flex' }}>
-            <Tooltip title="Change Theme!" placement='right' arrow>
-              <IconButton onClick={() => setDarkMode(!darkMode)} edge="start" color="inherit">
-                {darkMode ? <Brightness7 /> : <Brightness4 />}
-              </IconButton>
-            </Tooltip>
-  
-            <Box flexGrow={1} />
+    <>
+      <style>{`
+        .truncate {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
 
-            <Tooltip title="Server Statistics" placement='left' arrow>
-              <IconButton onClick={handleOpenAnalytics} edge="start" color="inherit">
-                <Analytics />
-              </IconButton>
-            </Tooltip>
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
 
-            <AnalyticsModal
-              open={analyticsOpen}
-              handleClose={handleCloseAnalytics}
-              data={analyticsData}
-              darkMode={darkMode}
-            />
-          </Toolbar>
-        </AppBar>
+        ::-webkit-scrollbar-track {
+          background: ${darkMode ? '#272727' : '#1976d2'};
+        }
   
-        <div style={{ marginTop: theme.spacing(10) }}>
-          <TextField
-            variant="standard"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search for player by steam name..."
-            style={{ width: '100%', marginBottom: theme.spacing(2) }}
-          />
-        </div>
+        ::-webkit-scrollbar-thumb {
+          background: ${darkMode ? '#b5b5b5' : '#e0e0e0'};
+        }
   
+        ::-webkit-scrollbar-thumb:hover {
+          background: ${darkMode ? '#555' : '#adadad'};
+        }
+      `}</style>
+
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
         <Container>
-          <div style={{ marginTop: theme.spacing(2) }}>  
-            {filteredData.map(item => (
-              <PlayerCard key={item.id} item={item} darkMode={darkMode} />
-            ))}
+          <AppBar position="fixed">
+            <Toolbar style={{ display: 'flex' }}>
+              <Tooltip title="Change Theme!" placement='right' arrow>
+                <IconButton onClick={() => setDarkMode(!darkMode)} edge="start" color="inherit">
+                  {darkMode ? <Brightness7 /> : <Brightness4 />}
+                </IconButton>
+              </Tooltip>
+      
+              <Box flexGrow={1} />
+
+              <Tooltip title="Server Statistics" placement='left' arrow>
+                <IconButton onClick={handleOpenAnalytics} edge="start" color="inherit">
+                  <Analytics />
+                </IconButton>
+              </Tooltip>
+
+              <AnalyticsModal
+                open={analyticsOpen}
+                handleClose={handleCloseAnalytics}
+                data={analyticsData}
+                darkMode={darkMode}
+              />
+            </Toolbar>
+          </AppBar>
+      
+          <div style={{ marginTop: theme.spacing(10) }}>
+            <TextField
+              variant="standard"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search for player by steam name..."
+              style={{ width: '100%', marginBottom: theme.spacing(2) }}
+            />
           </div>
+      
+          <Container>
+            <div style={{ marginTop: theme.spacing(2) }}>  
+              {filteredData.map(item => (
+                <PlayerCard key={item.id} item={item} darkMode={darkMode} />
+              ))}
+            </div>
+          </Container>
         </Container>
-      </Container>
-    </ThemeProvider>
+      </ThemeProvider>
+    </>
   );
 }
 
