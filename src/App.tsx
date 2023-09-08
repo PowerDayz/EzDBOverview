@@ -76,6 +76,7 @@ function AnalyticsModal({ open, handleClose, data, darkMode }: { open: boolean, 
       onClose={handleClose}
       aria-labelledby="analytics-modal-title"
       aria-describedby="analytics-modal-description"
+      sx={{ overflowY: 'scroll' }}
     >
       <Box 
         style={{ 
@@ -153,6 +154,7 @@ function InventoryModal({ inventory, open, handleClose, darkMode, onClose }: { i
       }}
       aria-labelledby="inventory-modal-title"
       aria-describedby="inventory-modal-description"
+      sx={{ overflowY: 'scroll' }}
     >
       <Box 
         style={{ 
