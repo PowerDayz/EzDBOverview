@@ -13,7 +13,7 @@
 - ![Picture3](https://github.com/PowerDayz/EzDBOverview/assets/50378849/47b08fe9-5271-4552-b099-bf47d138da86)
 - ![Picture5](https://github.com/PowerDayz/EzDBOverview/assets/50378849/d092b8bd-3dd0-4688-9214-824de8216cc8)
 - ![Picture4](https://github.com/PowerDayz/EzDBOverview/assets/50378849/5cc37780-d644-4aab-9683-3e7bc960de7a)
-- ![Picture6](https://github.com/PowerDayz/EzDBOverview/assets/50378849/3e678ede-d624-440e-b80e-1c6b492da89e)
+- ![Picture6](https://github.com/PowerDayz/EzDBOverview/assets/50378849/49253f61-d88b-4ba5-9ff0-ca1eb1e97719)
 
 
 ## **Pre-requisites**:
