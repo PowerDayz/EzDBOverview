@@ -101,7 +101,9 @@ function AnalyticsModal({ open, handleClose, data, darkMode }: { open: boolean, 
             <Typography><strong>Total Players:</strong> {data.totalPlayers}</Typography>
           </Grid>
           <Grid item>
-            <Typography><strong>Server Cash Flow:</strong> {formatMoney(data.totalMoney, 'USD')}</Typography>
+            <Tooltip title="The full amount of money on the server." arrow placement='top'>
+              <Typography><strong>Server Cash Flow:</strong> {formatMoney(data.totalMoney, 'USD')}</Typography>
+            </Tooltip>
             <Typography><strong>Richest Player % of Cash Flow:</strong> {(data.richestPlayerMoney / data.totalMoney * 100).toFixed(2)}%</Typography>
             {/*<Typography><strong>Total Players:</strong> {data.totalPlayers}</Typography>*/}
           </Grid>
