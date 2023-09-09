@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /backend/node_modules
+/backend/package-lock.json
 /.pnp
 .pnp.js
 yarn.lock
