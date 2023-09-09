@@ -32,6 +32,9 @@ interface Vehicle {
   engine: number;
   body: number;
   drivingdistance: string;
+  mods: {
+    [key: string]: number;
+  };
 }
 
 interface VehicleModalProps {
@@ -214,8 +217,8 @@ function MapModal({ open, handleClose, position, darkMode }: { open: boolean, ha
   const xPositionOnImage = xPercentage * 1000 + xOffset - 12.5;
   const yPositionOnImage = yPercentage * 1000 + yOffset - 12.5;
 
-  console.log(`xPositionOnImage: ${xPositionOnImage}`);
-  console.log(`yPositionOnImage: ${yPositionOnImage}`);
+  /*console.log(`xPositionOnImage: ${xPositionOnImage}`);
+  console.log(`yPositionOnImage: ${yPositionOnImage}`);*/
 
   return (
     <Modal
@@ -268,6 +271,8 @@ function VehicleModal({ open, vehicles, handleClose, darkMode, onClose }: Vehicl
     setCustomizationModalOpen(false);
     setSelectedVehicle(null);
   };
+
+  console.log(selectedVehicle?.mods);
 
   return (
     <>
@@ -358,9 +363,7 @@ function VehicleModal({ open, vehicles, handleClose, darkMode, onClose }: Vehicl
           }}
         >
           <Typography id="customization-modal-title" variant="h6">Customization for {selectedVehicle?.vehicle}</Typography>
-          <div>
-            <Typography variant="body1">Customization details will be here...</Typography>
-          </div>
+          <Typography id="customization-modal-description" variant="body1">Coming Soon..</Typography>
           <Button onClick={closeCustomizationModal}>Close</Button>
         </Box>
       </Modal>
@@ -538,7 +541,7 @@ function App() {
       .then(response => {
         setData(response.data);
         setFilteredData(response.data);
-        console.log(response.data);
+        /* console.log(response.data); */
       })
       .catch(error => {
         console.error("There was an error fetching data", error);

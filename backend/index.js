@@ -24,7 +24,7 @@ db.connect((err) => {
 
 // Example endpoint to get all data from a table
 app.get('/getData', (req, res) => {
-    const sql = `SELECT players.*, player_vehicles.vehicle, player_vehicles.plate, player_vehicles.garage, player_vehicles.fuel, player_vehicles.engine, player_vehicles.body, player_vehicles.drivingdistance FROM players LEFT JOIN player_vehicles ON players.citizenid = player_vehicles.citizenid`;
+    const sql = `SELECT players.*, player_vehicles.vehicle, player_vehicles.plate, player_vehicles.garage, player_vehicles.fuel, player_vehicles.engine, player_vehicles.body, player_vehicles.drivingdistance, player_vehicles.mods FROM players LEFT JOIN player_vehicles ON players.citizenid = player_vehicles.citizenid`;
 
     db.query(sql, (err, results) => {
         if (err) throw err;
@@ -56,6 +56,7 @@ app.get('/getData', (req, res) => {
                     engine: row.engine,
                     body: row.body,
                     drivingdistance: row.drivingdistance,
+                    mods: row.mods,
                 });
             }
             return acc;
