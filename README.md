@@ -33,7 +33,7 @@ cd EzDBOverview
 ### 2. Add Resource To Fivem Server:
 
 - Move the pw-ezdboverview folder to your resources folder
-- Ensure / Start the resource in your cfg
+- Ensure / Start the resource in your server.cfg
 
 ### **3. Database Connection**:
 
