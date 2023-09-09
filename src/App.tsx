@@ -107,7 +107,7 @@ function AnalyticsModal({ open, handleClose, data, darkMode }: { open: boolean, 
           color: darkMode ? 'white' : 'black' 
         }}
       >
-        <Typography id="analytics-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Statistics</Typography>
+        <Typography id="analytics-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Server Statistics</Typography>
         <Grid
           container
           direction="row"
