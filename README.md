@@ -34,9 +34,9 @@ cd EzDBOverview
 
 - Move the pw-ezdboverview folder to your resources folder
 - Ensure / Start the resource in your server.cfg
-  ```bash
-  ensure pw-ezdboverview
-  ```
+```bash
+ensure pw-ezdboverview
+```
 
 ### **3. Database Connection**:
 
