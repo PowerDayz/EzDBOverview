@@ -112,12 +112,12 @@ function AnalyticsModal({ open, handleClose, data, darkMode }: { open: boolean, 
           container
           direction="row"
           justifyContent="space-between"
-          alignItems="top"
+          alignItems="flex-start"
           sx={{ marginBottom: 2.5 }}
         >
           <Grid item>
             <Typography><strong>Richest Player:</strong> {data.richestPlayer} - {formatMoney(data.richestPlayerMoney || 0, 'USD')}</Typography>
-            <Typography><strong>Average Money:</strong> {formatMoney(data.averageMoney)}</Typography>
+            <Typography><strong>Average Money Per Player:</strong> {formatMoney(data.averageMoney)}</Typography>
             <Typography><strong>Total Players:</strong> {data.totalPlayers}</Typography>
           </Grid>
           <Grid item>
@@ -125,7 +125,6 @@ function AnalyticsModal({ open, handleClose, data, darkMode }: { open: boolean, 
               <Typography><strong>Server Cash Flow:</strong> {formatMoney(data.totalMoney, 'USD')}</Typography>
             </Tooltip>
             <Typography><strong>Richest Player % of Cash Flow:</strong> {(data.richestPlayerMoney / data.totalMoney * 100).toFixed(2)}%</Typography>
-            {/*<Typography><strong>Total Players:</strong> {data.totalPlayers}</Typography>*/}
           </Grid>
         </Grid>
 
@@ -282,14 +281,14 @@ function VehicleModal({ open, vehicles, handleClose, darkMode, onClose }: Vehicl
         <Grid container spacing={2}>
           {vehicles.map((vehicle, index) => (
             <Grid item xs={3} key={index} style={{ width: slotSize, height: slotSize, minWidth: slotSize, maxWidth: slotSize, border: '1px solid #232A36', padding: '10px', textAlign: 'center' }}>
-              <div><strong>Vehicle:</strong> {vehicle.vehicle}</div>
-              <div><strong>Plate:</strong> {vehicle.plate}</div>
-              <div><strong>Garage:</strong> {vehicle.garage}</div>
-              <div><strong>Fuel:</strong> {vehicle.fuel}%</div>
-              <div><strong>Engine:</strong> {convertToPercentage(vehicle.engine)}</div>
-              <div><strong>Body:</strong> {convertToPercentage(vehicle.body)}</div>
+              <Typography className="truncate"><strong>Vehicle:</strong> {vehicle.vehicle}</Typography>
+              <Typography className="truncate"><strong>Plate:</strong> {vehicle.plate}</Typography>
+              <Typography className="truncate"><strong>Garage:</strong> {vehicle.garage}</Typography>
+              <Typography className="truncate"><strong>Fuel:</strong> {vehicle.fuel}%</Typography>
+              <Typography className="truncate"><strong>Engine:</strong> {convertToPercentage(vehicle.engine)}</Typography>
+              <Typography className="truncate"><strong>Body:</strong> {convertToPercentage(vehicle.body)}</Typography>
               <Tooltip title="Driving Distance" arrow placement='bottom'>
-                <div><strong>Distance:</strong> {vehicle.drivingdistance}</div>
+                <Typography className="truncate"><strong>Distance:</strong> {vehicle.drivingdistance}</Typography>
               </Tooltip>
             </Grid>
           ))}
