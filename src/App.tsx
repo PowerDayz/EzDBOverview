@@ -21,6 +21,25 @@ interface DataItem {
   citizenid: string;
   id: number;
   name: string;
+  vehicles: string;
+}
+
+interface Vehicle {
+  vehicle: string;
+  plate: string;
+  garage: string;
+  fuel: string;
+  engine: string;
+  body: string;
+  drivingdistance: string;
+}
+
+interface VehicleModalProps {
+  open: boolean;
+  vehicles: Vehicle[];
+  handleClose: () => void;
+  darkMode: boolean;
+  onClose?: (event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => void;
 }
 
 type AnalyticsData = {
@@ -234,10 +253,56 @@ function formatMoney(value: number | bigint, currencyCode = 'USD', isCrypto = fa
   }).format(value);
 }
 
+function VehicleModal({ open, vehicles, handleClose, darkMode, onClose }: VehicleModalProps) {
+  const slotSize = 200;
+
+  return (
+    <Modal
+      open={open}
+      onClose={(event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => {
+        if (onClose) onClose(event, reason);
+        handleClose();
+      }}
+      aria-labelledby="vehicle-modal-title"
+      aria-describedby="vehicle-modal-description"
+      sx={{ overflowY: 'scroll' }}
+    >
+      <Box
+        style={{
+          width: '80%',
+          margin: '5% auto',
+          backgroundColor: darkMode ? 'rgb(51,51,51,0.8)' : 'rgb(255,255,255,0.8)',
+          padding: '20px',
+          outline: 'none',
+          color: darkMode ? 'white' : 'black'
+        }}
+      >
+        <Typography id="vehicle-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Vehicles</Typography>
+        <Grid container spacing={2}>
+          {vehicles.map((vehicle, index) => (
+            <Grid item xs={3} key={index} style={{ width: slotSize, height: slotSize, minWidth: slotSize, maxWidth: slotSize, border: '1px solid #232A36', padding: '10px', textAlign: 'center' }}>
+              <div><strong>Vehicle:</strong> {vehicle.vehicle}</div>
+              <div><strong>Plate:</strong> {vehicle.plate}</div>
+              <div><strong>Garage:</strong> {vehicle.garage}</div>
+              <div><strong>Fuel:</strong> {vehicle.fuel}</div>
+              <div><strong>Engine:</strong> {vehicle.engine}</div>
+              <div><strong>Body:</strong> {vehicle.body}</div>
+              <Tooltip title="Driving Distance" arrow placement='bottom'>
+                <div><strong>Distance:</strong> {vehicle.drivingdistance}</div>
+              </Tooltip>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    </Modal>
+  );
+}
+
 function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
+  const [vehicleOpen, setVehicleOpen] = useState(false);
 
   const handleOpenInventory = (e: React.MouseEvent) => {
     e.stopPropagation(); // Makes sure the PlayerCard doesn't close when clicking the button
@@ -255,6 +320,15 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
   
   const handleCloseMap = () => {
     setMapOpen(false);
+  };
+
+  const handleOpenVehicle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setVehicleOpen(true);
+  };
+  
+  const handleCloseVehicle = () => {
+    setVehicleOpen(false);
   };
 
   const [position, setPosition] = useState({x: 0, y: 0, z: 0});
@@ -307,7 +381,8 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
                 <Typography className="truncate" onClick={handleTextMouseDown}><strong>CID:</strong> {item.cid}</Typography>
                 <Typography className="truncate" onClick={handleTextMouseDown}><strong>License:</strong> {item.license}</Typography>
                 <Button onClick={handleOpenMap}>Open Map</Button>
-                <Button onClick={(e) => handleOpenInventory(e)}>Open Inventory</Button>
+                <Button onClick={handleOpenInventory}>Open Inventory</Button>
+                <Button onClick={handleOpenVehicle}>Open Vehicles</Button>
               </Grid>
               <Grid item xs={3}>
                 <Typography className="truncate" onClick={handleTextMouseDown}>
@@ -362,6 +437,13 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
         open={mapOpen}
         handleClose={handleCloseMap}
         position={position}
+        darkMode={darkMode}
+      />
+
+      <VehicleModal
+        open={vehicleOpen}
+        handleClose={handleCloseVehicle}
+        vehicles={Array.isArray(item.vehicles) ? item.vehicles : JSON.parse(item.vehicles)}
         darkMode={darkMode}
       />
     </>

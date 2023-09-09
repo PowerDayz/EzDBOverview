@@ -24,11 +24,52 @@ db.connect((err) => {
 
 // Example endpoint to get all data from a table
 app.get('/getData', (req, res) => {
-   const sql = 'SELECT * FROM players';
-   db.query(sql, (err, results) => {
-      if (err) throw err;
-      res.json(results);
-   });
+    const sql = `
+        SELECT players.*, player_vehicles.vehicle, player_vehicles.plate, player_vehicles.garage, player_vehicles.fuel, 
+               player_vehicles.engine, player_vehicles.body, player_vehicles.drivingdistance
+        FROM players
+        LEFT JOIN player_vehicles ON players.citizenid = player_vehicles.citizenid
+    `;
+
+    db.query(sql, (err, results) => {
+        if (err) throw err;
+
+        // Aggregate vehicles per player
+        const aggregatedResults = results.reduce((acc, row) => {
+            if (!acc[row.citizenid]) {
+                acc[row.citizenid] = {
+                    citizenid: row.citizenid,
+                    name: row.name,
+                    license: row.license,
+                    money: row.money,
+                    cid: row.cid,
+                    charinfo: row.charinfo,
+                    job: row.job,
+                    gang: row.gang,
+                    position: row.position,
+                    metadata: row.metadata,
+                    inventory: row.inventory,
+                    vehicles: []
+                };
+            }
+
+            if (row.vehicle) {
+                acc[row.citizenid].vehicles.push({
+                    vehicle: row.vehicle,
+                    plate: row.plate,
+                    garage: row.garage,
+                    fuel: row.fuel,
+                    engine: row.engine,
+                    body: row.body,
+                    drivingdistance: row.drivingdistance,
+                });
+            }
+            
+            return acc;
+        }, {});
+
+        res.json(Object.values(aggregatedResults));
+    });
 });
 
 app.listen(PORT, () => {
