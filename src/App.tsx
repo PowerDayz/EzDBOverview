@@ -28,9 +28,9 @@ interface Vehicle {
   vehicle: string;
   plate: string;
   garage: string;
-  fuel: string;
-  engine: string;
-  body: string;
+  fuel: number;
+  engine: number;
+  body: number;
   drivingdistance: string;
 }
 
@@ -255,6 +255,7 @@ function formatMoney(value: number | bigint, currencyCode = 'USD', isCrypto = fa
 
 function VehicleModal({ open, vehicles, handleClose, darkMode, onClose }: VehicleModalProps) {
   const slotSize = 200;
+  const convertToPercentage = (value: number) => `${value / 10}%`;
 
   return (
     <Modal
@@ -284,9 +285,9 @@ function VehicleModal({ open, vehicles, handleClose, darkMode, onClose }: Vehicl
               <div><strong>Vehicle:</strong> {vehicle.vehicle}</div>
               <div><strong>Plate:</strong> {vehicle.plate}</div>
               <div><strong>Garage:</strong> {vehicle.garage}</div>
-              <div><strong>Fuel:</strong> {vehicle.fuel}</div>
-              <div><strong>Engine:</strong> {vehicle.engine}</div>
-              <div><strong>Body:</strong> {vehicle.body}</div>
+              <div><strong>Fuel:</strong> {vehicle.fuel}%</div>
+              <div><strong>Engine:</strong> {convertToPercentage(vehicle.engine)}</div>
+              <div><strong>Body:</strong> {convertToPercentage(vehicle.body)}</div>
               <Tooltip title="Driving Distance" arrow placement='bottom'>
                 <div><strong>Distance:</strong> {vehicle.drivingdistance}</div>
               </Tooltip>
