@@ -2,12 +2,15 @@ const express = require('express');
 const mysql = require('mysql');
 const createConnection = mysql.createConnection;
 const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const app = express();
 const PORT = 3001;
 
 // This will add the CORS headers to the response
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // MySQL connection
 const db = createConnection({
@@ -64,6 +67,38 @@ app.get('/getData', (req, res) => {
 
         res.json(Object.values(aggregatedResults));
     });
+});
+
+let onlinePlayers = [];
+
+app.post('/setPlayers', (req, res) => {
+    onlinePlayers = req.body;
+    //console.log(onlinePlayers);
+    res.json({ status: 'ok' });
+});
+
+// Endpoint to fetch online players
+app.get('/getOnlinePlayers', (req, res) => {
+    res.json(onlinePlayers);
+});
+
+// Assume this endpoint fetches all players and marks online players
+app.get('/fetchAllPlayers', async (req, res) => {
+    try {
+        const allPlayers = await fetchAllPlayersFromAPI();
+        
+        allPlayers.forEach(player => {
+            if(onlinePlayers.some(onlinePlayer => onlinePlayer.id === player.id)) {
+                player.isOnline = true;
+            } else {
+                player.isOnline = false;
+            }
+        });
+
+        res.json(allPlayers);
+    } catch (error) {
+        res.status(500).json({ message: "An error occurred", error });
+    }
 });
 
 app.listen(PORT, () => {

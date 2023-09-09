@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Grid, Paper, Typography, Avatar, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, Button, TextField, Tooltip, ButtonBase } from '@mui/material';
+import { Container, Grid, Paper, Typography, Avatar, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, Button, TextField, Tooltip, ButtonBase, Badge, styled } from '@mui/material';
 import { Brightness4, Brightness7, Analytics } from '@mui/icons-material';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import { Tooltip as RechartsTooltip } from 'recharts';
@@ -62,6 +62,35 @@ type JobWealthData = {
   count: number;
   averageWealth: number;
 };
+
+const StyledBadge = styled(Badge)(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    backgroundColor: '#44b700',
+    color: '#44b700',
+    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+    '&::after': {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      borderRadius: '50%',
+      animation: 'ripple 1.2s infinite ease-in-out',
+      border: '1px solid currentColor',
+      content: '""',
+    },
+  },
+  '@keyframes ripple': {
+    '0%': {
+      transform: 'scale(.8)',
+      opacity: 1,
+    },
+    '100%': {
+      transform: 'scale(2.4)',
+      opacity: 0,
+    },
+  },
+}));
 
 function getWealthPerJob(data: DataItem[]) {
   return data.reduce((acc, item) => {
@@ -371,7 +400,7 @@ function VehicleModal({ open, vehicles, handleClose, darkMode, onClose }: Vehicl
   );
 }
 
-function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
+function PlayerCard({ item, darkMode, onlinePlayers }: { item: DataItem, darkMode: boolean, onlinePlayers: DataItem[] }) {
   const [expanded, setExpanded] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
@@ -430,6 +459,8 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
 
   const charInfo = typeof item.charinfo === 'string' ? JSON.parse(item.charinfo) : item.charinfo;
 
+  const isOnline = onlinePlayers.some(player => player.citizenid === item.citizenid);
+
   return (
     <>
       <Paper elevation={3} 
@@ -443,7 +474,17 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
         onClick={() => setExpanded(!expanded)}>
         <Grid container spacing={2}>
             <Grid item container xs={12} justifyContent="space-between">
-              <Avatar>{item.name[0]}</Avatar>
+              {isOnline ? (
+                <StyledBadge
+                  overlap="circular"
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  variant="dot"
+                >
+                  <Avatar>{item.name[0]}</Avatar>
+                </StyledBadge>
+              ) : (
+                <Avatar>{item.name[0]}</Avatar>
+              )}
               <Typography variant="h6" component="div" onClick={handleTextMouseDown}>{charInfo.firstname} {charInfo.lastname}</Typography>
               <Typography variant="h5" component="div" onClick={handleTextMouseDown}>{item.name}</Typography>
             </Grid>
@@ -526,6 +567,7 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
 function App() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
+  const [onlinePlayers, setOnlinePlayers] = useState<DataItem[]>([]);
   const [data, setData] = useState<DataItem[]>([]);
   const [darkMode, setDarkMode] = useState(true); // Now Starts in Dark Mode
 
@@ -541,10 +583,21 @@ function App() {
       .then(response => {
         setData(response.data);
         setFilteredData(response.data);
-        /* console.log(response.data); */
       })
       .catch(error => {
         console.error("There was an error fetching data", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/getOnlinePlayers')
+      .then(response => {
+        console.log("Full Response:", response);
+        console.log("Data:", response.data);
+        setOnlinePlayers(response.data); // <-- Set the online players here
+      })
+      .catch(error => {
+        console.error("There was an error fetching online players", error);
       });
   }, []);
 
@@ -676,11 +729,11 @@ function App() {
               style={{ width: '100%', marginBottom: theme.spacing(2) }}
             />
           </div>
-      
+
           <Container>
             <div style={{ marginTop: theme.spacing(2) }}>  
               {filteredData.map(item => (
-                <PlayerCard key={item.id} item={item} darkMode={darkMode} />
+                <PlayerCard key={item.id} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} />
               ))}
             </div>
           </Container>

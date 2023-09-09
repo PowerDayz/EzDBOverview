@@ -30,12 +30,17 @@ git clone https://github.com/PowerDayz/EzDBOverview
 cd EzDBOverview
 ```
 
-### **2. Database Connection**:
+### **2. Add Resource To Fivem Server **:
+
+- Move the pw-ezdboverview folder to your resources folder
+- Ensure / Start the resource in your cfg
+
+### **3. Database Connection**:
 
 - Goto backend/index.js
 - Edit the createConnection to match your database
 
-### **3. Backend Setup**:
+### **4. Backend Setup**:
 
 ```bash
 cd Backend
@@ -43,7 +48,7 @@ npm install
 nodemon index.js
 ```
 
-### **4. Frontend Setup**:
+### **5. Frontend Setup**:
 
 ```bash
 cd EzDBOverview
