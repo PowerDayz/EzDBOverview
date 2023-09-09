@@ -189,7 +189,7 @@ function InventoryModal({ inventory, open, handleClose, darkMode, onClose }: { i
           {[...Array(inventorySlots)].map((_, index) => {
             const item = inventory.find(i => i.slot === index + 1);
             return (
-              <Grid item xs={3} key={index} style={{ width: slotSize, height: slotSize, minWidth: slotSize, maxWidth: slotSize, border: '1px solid #232A36', padding: '10px', textAlign: 'center' }}>
+              <Grid item xs={3} key={index} style={{ width: slotSize, height: slotSize, minWidth: slotSize, maxWidth: slotSize, border: '1px solid #3c97e9', padding: '10px', textAlign: 'center', marginRight: 3, marginBottom: 3 }}>
                 {item ? <img src={getImageSrc(item.name)} onError={(e) => { e.currentTarget.src = `${process.env.PUBLIC_URL}/images/default.png`; }} alt={item.name} style={{ width: slotSize-20, height: slotSize-20, userSelect: 'none' }} /> : null}
               </Grid>
             );
@@ -280,7 +280,7 @@ function VehicleModal({ open, vehicles, handleClose, darkMode, onClose }: Vehicl
         <Typography id="vehicle-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Vehicles</Typography>
         <Grid container spacing={2}>
           {vehicles.map((vehicle, index) => (
-            <Grid item xs={3} key={index} style={{ width: slotSize, height: slotSize, minWidth: slotSize, maxWidth: slotSize, border: '1px solid #232A36', padding: '10px', textAlign: 'center' }}>
+            <Grid item xs={3} key={index} style={{ width: slotSize, height: slotSize, minWidth: slotSize, maxWidth: slotSize, border: '1px solid #3c97e9', padding: '10px', textAlign: 'center', marginRight: 3, marginBottom: 3 }}>
               <Typography className="truncate"><strong>Vehicle:</strong> {vehicle.vehicle}</Typography>
               <Typography className="truncate"><strong>Plate:</strong> {vehicle.plate}</Typography>
               <Typography className="truncate"><strong>Garage:</strong> {vehicle.garage}</Typography>
