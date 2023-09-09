@@ -5,10 +5,6 @@ function sendOnlinePlayers()
     
     local playerDetails = {}
 
-    if #players == 0 then
-        print("Nobody is online")
-    end
-
     for i=1, #players do
         local playerSource = players[i]
         local Player = QBCore.Functions.GetPlayer(tonumber(playerSource))
