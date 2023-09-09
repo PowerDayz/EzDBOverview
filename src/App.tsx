@@ -141,7 +141,7 @@ function AnalyticsModal({ open, handleClose, data, darkMode }: { open: boolean, 
             <Radar name="Job Wealth" dataKey="averageWealth" stroke={darkMode ? "#8884d8" : "#3976CE"} fill={darkMode ? "#8884d8" : "#3976CE"} fillOpacity={0.6} />
           </RadarChart>
 
-          <BarChart width={400} height={400} data={dataForBarChart}>
+          <BarChart width={400} height={400} data={dataForBarChart} style={{ color: 'black' }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" /> 
             <YAxis />
