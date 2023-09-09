@@ -8,7 +8,7 @@
 - **Intuitive Interface:** Navigate your database with ease.
 - **Customizable:** Modify and adapt the code to fit your needs.
 
-- ![Picture1](https://github.com/PowerDayz/EzDBOverview/assets/50378849/5ed7ac2f-4c36-40d9-9ce6-887893fc3d25)
+- ![Picture1](https://github.com/PowerDayz/EzDBOverview/assets/50378849/7462eef7-6432-4923-a525-bc89bbbbdb8d)
 - ![Picture2](https://github.com/PowerDayz/EzDBOverview/assets/50378849/64cb7566-60ea-4a5d-b229-403d4c7a835a)
 - ![Picture3](https://github.com/PowerDayz/EzDBOverview/assets/50378849/47b08fe9-5271-4552-b099-bf47d138da86)
 - ![Picture5](https://github.com/PowerDayz/EzDBOverview/assets/50378849/d092b8bd-3dd0-4688-9214-824de8216cc8)
@@ -30,10 +30,10 @@ git clone https://github.com/PowerDayz/EzDBOverview
 cd EzDBOverview
 ```
 
-### **2. Add Resource To Fivem Server **:
+### 2. Add Resource To Fivem Server:
 
 - Move the pw-ezdboverview folder to your resources folder
-- Ensure / Start the resource in your cfg
+- Ensure / Start the resource in your server.cfg
 
 ### **3. Database Connection**:
 
