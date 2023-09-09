@@ -30,7 +30,7 @@ git clone https://github.com/PowerDayz/EzDBOverview
 cd EzDBOverview
 ```
 
-### 2. Add Resource To Fivem Server :
+### 2. Add Resource To Fivem Server:
 
 - Move the pw-ezdboverview folder to your resources folder
 - Ensure / Start the resource in your cfg
