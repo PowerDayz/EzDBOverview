@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Grid, Paper, Typography, Avatar, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, Button, TextField, Tooltip } from '@mui/material';
+import { Container, Grid, Paper, Typography, Avatar, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, Button, TextField, Tooltip, ButtonBase } from '@mui/material';
 import { Brightness4, Brightness7, Analytics } from '@mui/icons-material';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import { Tooltip as RechartsTooltip } from 'recharts';
@@ -185,7 +185,7 @@ function InventoryModal({ inventory, open, handleClose, darkMode, onClose }: { i
         }}
       >
         <Typography id="inventory-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Inventory</Typography>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{ marginLeft: 1 }}>
           {[...Array(inventorySlots)].map((_, index) => {
             const item = inventory.find(i => i.slot === index + 1);
             return (
@@ -254,47 +254,117 @@ function formatMoney(value: number | bigint, currencyCode = 'USD', isCrypto = fa
 
 function VehicleModal({ open, vehicles, handleClose, darkMode, onClose }: VehicleModalProps) {
   const slotSize = 200;
+  const [customizationModalOpen, setCustomizationModalOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+
   const convertToPercentage = (value: number) => `${value / 10}%`;
 
+  const handleVehicleClick = (vehicle: any) => {
+    setSelectedVehicle(vehicle);
+    setCustomizationModalOpen(true);
+  };
+
+  const closeCustomizationModal = () => {
+    setCustomizationModalOpen(false);
+    setSelectedVehicle(null);
+  };
+
   return (
-    <Modal
-      open={open}
-      onClose={(event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => {
-        if (onClose) onClose(event, reason);
-        handleClose();
-      }}
-      aria-labelledby="vehicle-modal-title"
-      aria-describedby="vehicle-modal-description"
-      sx={{ overflowY: 'scroll' }}
-    >
-      <Box
+    <>
+      <Modal
+        open={open}
+        onClose={(event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => {
+          if (onClose) onClose(event, reason);
+          handleClose();
+        }}
+        aria-labelledby="vehicle-modal-title"
+        aria-describedby="vehicle-modal-description"
         style={{
-          width: '80%',
-          margin: '5% auto',
-          backgroundColor: darkMode ? 'rgb(51,51,51,0.8)' : 'rgb(255,255,255,0.8)',
-          padding: '20px',
-          outline: 'none',
-          color: darkMode ? 'white' : 'black'
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        <Typography id="vehicle-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Vehicles</Typography>
-        <Grid container spacing={2}>
-          {vehicles.map((vehicle, index) => (
-            <Grid item xs={3} key={index} style={{ width: slotSize, height: slotSize, minWidth: slotSize, maxWidth: slotSize, border: '1px solid #3c97e9', padding: '10px', textAlign: 'center', marginRight: 3, marginBottom: 3 }}>
-              <Typography className="truncate"><strong>Vehicle:</strong> {vehicle.vehicle}</Typography>
-              <Typography className="truncate"><strong>Plate:</strong> {vehicle.plate}</Typography>
-              <Typography className="truncate"><strong>Garage:</strong> {vehicle.garage}</Typography>
-              <Typography className="truncate"><strong>Fuel:</strong> {vehicle.fuel}%</Typography>
-              <Typography className="truncate"><strong>Engine:</strong> {convertToPercentage(vehicle.engine)}</Typography>
-              <Typography className="truncate"><strong>Body:</strong> {convertToPercentage(vehicle.body)}</Typography>
-              <Tooltip title="Driving Distance" arrow placement='bottom'>
-                <Typography className="truncate"><strong>Distance:</strong> {vehicle.drivingdistance}</Typography>
-              </Tooltip>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-    </Modal>
+        <Box 
+          style={{
+            width: '80%',
+            margin: '5% auto',
+            backgroundColor: darkMode ? 'rgb(51,51,51,0.8)' : 'rgb(255,255,255,0.8)',
+            padding: '20px',
+            outline: 'none',
+            color: darkMode ? 'white' : 'black'
+          }}
+        >
+          <Typography id="vehicle-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Vehicles</Typography>
+          <Grid container spacing={2}>
+            {vehicles && vehicles.length === 0 && <Typography className="truncate" style={{ marginLeft: 20, marginTop: 5 }}><strong>No vehicles found.</strong></Typography>}
+            {vehicles && vehicles.map((vehicle, index) => (
+              <ButtonBase 
+                focusRipple
+                key={index}
+                style={{ 
+                  width: slotSize, 
+                  height: slotSize,
+                  display: 'block',
+                  textAlign: 'center',
+                  marginLeft: 20,
+                }}
+                onClick={() => handleVehicleClick(vehicle)}
+              >
+                <Box style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  border: '1px solid #3c97e9', 
+                  padding: '10px', 
+                  textAlign: 'center', 
+                  marginRight: 3, 
+                  marginBottom: 3,
+                }}>
+                  <Typography className="truncate"><strong>Vehicle:</strong> {vehicle.vehicle}</Typography>
+                  <Typography className="truncate"><strong>Plate:</strong> {vehicle.plate}</Typography>
+                  <Typography className="truncate"><strong>Garage:</strong> {vehicle.garage}</Typography>
+                  <Typography className="truncate"><strong>Fuel:</strong> {vehicle.fuel}%</Typography>
+                  <Typography className="truncate"><strong>Engine:</strong> {convertToPercentage(vehicle.engine)}</Typography>
+                  <Typography className="truncate"><strong>Body:</strong> {convertToPercentage(vehicle.body)}</Typography>
+                  <Tooltip title="Driving Distance" arrow placement='bottom'>
+                    <Typography className="truncate"><strong>Distance:</strong> {vehicle.drivingdistance}</Typography>
+                  </Tooltip>
+                </Box>
+              </ButtonBase>
+            ))}
+          </Grid>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={customizationModalOpen}
+        onClose={closeCustomizationModal}
+        aria-labelledby="customization-modal-title"
+        aria-describedby="customization-modal-description"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Box
+          style={{
+            width: '50%',
+            margin: '5% auto',
+            backgroundColor: darkMode ? 'rgb(51,51,51,0.9)' : 'rgb(255,255,255,0.9)',
+            padding: '20px',
+            outline: 'none',
+            color: darkMode ? 'white' : 'black'
+          }}
+        >
+          <Typography id="customization-modal-title" variant="h6">Customization for {selectedVehicle?.vehicle}</Typography>
+          <div>
+            <Typography variant="body1">Customization details will be here...</Typography>
+          </div>
+          <Button onClick={closeCustomizationModal}>Close</Button>
+        </Box>
+      </Modal>
+    </>
   );
 }
 
@@ -371,14 +441,14 @@ function PlayerCard({ item, darkMode }: { item: DataItem, darkMode: boolean }) {
         <Grid container spacing={2}>
             <Grid item container xs={12} justifyContent="space-between">
               <Avatar>{item.name[0]}</Avatar>
-              <Typography variant="h6" component="div">{charInfo.firstname} {charInfo.lastname}</Typography>
-              <Typography variant="h5" component="div">{item.name}</Typography>
+              <Typography variant="h6" component="div" onClick={handleTextMouseDown}>{charInfo.firstname} {charInfo.lastname}</Typography>
+              <Typography variant="h5" component="div" onClick={handleTextMouseDown}>{item.name}</Typography>
             </Grid>
           {expanded && (
             <>
               <Grid item xs={3}>
                 <Typography className="truncate" onClick={handleTextMouseDown}><strong>Citizen ID:</strong> {item.citizenid}</Typography>
-                <Typography className="truncate" onClick={handleTextMouseDown}><strong>CID:</strong> {item.cid}</Typography>
+                <Typography className="truncate" onClick={handleTextMouseDown}><strong>Char Slot:</strong> {item.cid}</Typography>
                 <Typography className="truncate" onClick={handleTextMouseDown}><strong>License:</strong> {item.license}</Typography>
                 <Button onClick={handleOpenMap}>Open Map</Button>
                 <Button onClick={handleOpenInventory}>Open Inventory</Button>
