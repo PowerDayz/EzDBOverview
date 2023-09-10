@@ -25,13 +25,27 @@ db.connect((err) => {
    console.log('Connected to the database');
 });
 
-// Example endpoint to get all data from a table
 app.get('/getData', (req, res) => {
-    const sql = `SELECT players.*, player_vehicles.vehicle, player_vehicles.plate, player_vehicles.garage, player_vehicles.fuel, player_vehicles.engine, player_vehicles.body, player_vehicles.drivingdistance, player_vehicles.mods FROM players LEFT JOIN player_vehicles ON players.citizenid = player_vehicles.citizenid`;
+    const usingPsMdt = req.query.usingPsMdt === 'true';
+
+    const sql = `
+        SELECT players.*, 
+               player_vehicles.vehicle, 
+               player_vehicles.plate, 
+               player_vehicles.garage, 
+               player_vehicles.fuel, 
+               player_vehicles.engine, 
+               player_vehicles.body, 
+               player_vehicles.drivingdistance, 
+               player_vehicles.mods,
+               mdt_data.pfp
+        FROM players 
+        LEFT JOIN player_vehicles ON players.citizenid = player_vehicles.citizenid
+        LEFT JOIN mdt_data ON players.citizenid = mdt_data.cid
+    `;
 
     db.query(sql, (err, results) => {
         if (err) throw err;
-        // Aggregate vehicles per player
         const aggregatedResults = results.reduce((acc, row) => {
             if (!acc[row.citizenid]) {
                 acc[row.citizenid] = {
@@ -46,8 +60,11 @@ app.get('/getData', (req, res) => {
                     position: row.position,
                     metadata: row.metadata,
                     inventory: row.inventory,
-                    vehicles: []
+                    vehicles: [],
                 };
+                if (usingPsMdt) {
+                    acc[row.citizenid].pfp = row.pfp;
+                }
             }
 
             if (row.vehicle) {

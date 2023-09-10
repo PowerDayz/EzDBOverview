@@ -8,14 +8,18 @@
 - **Intuitive Interface:** Navigate your database with ease.
 - **Customizable:** Modify and adapt the code to fit your needs.
 
-- ![Picture1](https://github.com/PowerDayz/EzDBOverview/assets/50378849/7462eef7-6432-4923-a525-bc89bbbbdb8d)
-- ![Picture2](https://github.com/PowerDayz/EzDBOverview/assets/50378849/64cb7566-60ea-4a5d-b229-403d4c7a835a)
-- ![Picture3](https://github.com/PowerDayz/EzDBOverview/assets/50378849/47b08fe9-5271-4552-b099-bf47d138da86)
-- ![Picture5](https://github.com/PowerDayz/EzDBOverview/assets/50378849/d092b8bd-3dd0-4688-9214-824de8216cc8)
-- ![Picture4](https://github.com/PowerDayz/EzDBOverview/assets/50378849/5cc37780-d644-4aab-9683-3e7bc960de7a)
-- ![Picture6](https://github.com/PowerDayz/EzDBOverview/assets/50378849/49253f61-d88b-4ba5-9ff0-ca1eb1e97719)
-- ![Picture7](https://github.com/PowerDayz/EzDBOverview/assets/50378849/f0a14ce0-313d-41b3-95c3-a9b12d5015f5)
+![Picture1](https://github.com/PowerDayz/EzDBOverview/assets/50378849/7462eef7-6432-4923-a525-bc89bbbbdb8d)
+![Picture2](https://github.com/PowerDayz/EzDBOverview/assets/50378849/64cb7566-60ea-4a5d-b229-403d4c7a835a)
+![Picture3](https://github.com/PowerDayz/EzDBOverview/assets/50378849/47b08fe9-5271-4552-b099-bf47d138da86)
+![Picture5](https://github.com/PowerDayz/EzDBOverview/assets/50378849/d092b8bd-3dd0-4688-9214-824de8216cc8)
+![Picture4](https://github.com/PowerDayz/EzDBOverview/assets/50378849/5cc37780-d644-4aab-9683-3e7bc960de7a)
+![Picture6](https://github.com/PowerDayz/EzDBOverview/assets/50378849/49253f61-d88b-4ba5-9ff0-ca1eb1e97719)
+![Picture7](https://github.com/PowerDayz/EzDBOverview/assets/50378849/f0a14ce0-313d-41b3-95c3-a9b12d5015f5)
 
+## **Configuration**:
+
+Before diving into setup, ensure you have configured the application properly:
+- Go to `src/utils/config.ts` and set the `UsingPsMdt` to `false` if you are not using ps-mdt. If you are using it, you can leave it as `true`.
 
 ## **Pre-requisites**:
 
@@ -32,7 +36,7 @@ cd EzDBOverview
 
 ### 2. Add Resource To Fivem Server:
 
-- Move the pw-ezdboverview folder to your resources folder
+- Move the `pw-ezdboverview` folder to your resources folder
 - Ensure / Start the resource in your server.cfg
 ```bash
 ensure pw-ezdboverview
@@ -40,8 +44,8 @@ ensure pw-ezdboverview
 
 ### **3. Database Connection**:
 
-- Goto backend/index.js
-- Edit the createConnection to match your database
+- Go to `backend/index.js`
+- Edit the `createConnection` to match your database
 
 ### **4. Backend Setup**:
 
