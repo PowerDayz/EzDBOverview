@@ -39,8 +39,6 @@ function VehicleModal({ open, vehicles, handleClose, darkMode, onClose }: Vehicl
       setSelectedVehicle(null);
     };
   
-    console.log(selectedVehicle?.mods);
-  
     return (
       <>
         <Modal

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, TextField, Tooltip } from '@mui/material';
+import { Container, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, TextField, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions } from '@mui/material';
 import { Brightness4, Brightness7, Analytics } from '@mui/icons-material';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import Box from '@mui/material/Box';
 import PlayerCard from './components/PlayerCard';
 import AnalyticsModal from './components/AnalyticsModal';
 import SearchFilters from './components/SearchFilters';
 import { getWealthPerJob } from './utils/helpers';
 import { UsingPsMdt } from './utils/config';
+import InventoryModal from './components/InventoryModal';
 
 interface DataItem {
   inventory: string;
@@ -73,8 +75,6 @@ function App() {
   useEffect(() => {
     axios.get('http://localhost:3001/getOnlinePlayers')
       .then(response => {
-        console.log("Full Response:", response);
-        console.log("Data:", response.data);
         setOnlinePlayers(response.data); // <-- Set the online players here
       })
       .catch(error => {
@@ -147,6 +147,43 @@ function App() {
     setAnalyticsOpen(false);
   };
 
+  const [converterOpen, setConverterOpen] = useState(false);
+  const [pastedInventory, setPastedInventory] = useState<string | null>(null);
+  const [convertedInventoryOpen, setConvertedInventoryOpen] = useState(false);
+  const [converterError, setConverterError] = useState<string | null>(null);
+  const [rawInput, setRawInput] = useState<string>('');
+
+  const handleConverterSubmit = () => {
+    // Check for invalid input
+    if (rawInput.includes("[object Object]")) {
+      console.error("Invalid input detected:", rawInput);
+      setConverterError("Invalid input detected. Please provide valid JSON.");
+      return;
+    }
+
+    // The rest of your function remains the same
+    try {
+        const parsedInventory = JSON.parse(rawInput);
+        setPastedInventory(parsedInventory);
+        setConverterOpen(false);
+        setConvertedInventoryOpen(true);
+        setConverterError(null); // reset the error if successful
+    } catch (error) {
+        console.error("Failed to parse the pasted inventory", error);
+        setConverterError("Failed to parse the pasted inventory. Please ensure it's valid JSON.");
+    }
+  };
+
+  const handleRawInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRawInput(event.target.value);
+  };
+
+  const handleCloseConverter = () => {
+    setConverterOpen(false);
+    setRawInput('');
+    setConverterError(null);
+  };
+
   const [SearchFilter, setSearchFilter] = useState<{ online?: boolean, job?: string }>({});
 
   useEffect(() => {
@@ -171,6 +208,7 @@ function App() {
     setFilteredData(results);
   }, [searchTerm, data, SearchFilter, onlinePlayers]);
 
+  const parsedInventory = typeof pastedInventory === 'string' ? JSON.parse(pastedInventory) : pastedInventory;
   return (
     <>
       <style>{`
@@ -202,15 +240,33 @@ function App() {
         <Container>
           <AppBar position="fixed">
             <Toolbar style={{ display: 'flex' }}>
-              <Tooltip title="Change Theme!" placement='right' arrow>
+              <Tooltip title="Change Theme!" placement='bottom' arrow>
                 <IconButton onClick={() => setDarkMode(!darkMode)} edge="start" color="inherit">
                   {darkMode ? <Brightness7 /> : <Brightness4 />}
                 </IconButton>
               </Tooltip>
       
               <Box flexGrow={1} />
+              
+              <Tooltip title="Inventory Log Converter" placement='bottom' arrow sx={{ marginRight: 3 }}>
+                <IconButton onClick={() => setConverterOpen(true)} edge="start" color="inherit">
+                  <InventoryIcon />
+                </IconButton>
+              </Tooltip>
 
-              <Tooltip title="Server Statistics" placement='left' arrow>
+              <InventoryModal
+                inventory={parsedInventory}
+                open={convertedInventoryOpen}
+                handleClose={() => setConvertedInventoryOpen(false)}
+                darkMode={darkMode}
+                onClose={(event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => {
+                  if (reason === "backdropClick") {
+                    event.stopPropagation();
+                  }
+                }}
+              />
+
+              <Tooltip title="Server Statistics" placement='bottom' arrow>
                 <IconButton onClick={handleOpenAnalytics} edge="start" color="inherit">
                   <Analytics />
                 </IconButton>
@@ -241,6 +297,35 @@ function App() {
             darkMode={darkMode}
             theme={theme}
           />
+
+          <Dialog open={converterOpen} onClose={handleCloseConverter}>
+            <DialogTitle>Inventory Log Converter</DialogTitle>
+            <DialogContent>
+              <DialogContentText sx={{ marginBottom: 2 }}>
+                Please paste your inventory log below. With out without the Playername, CitizenID, id and items set:
+              </DialogContentText>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="name"
+                label="Inventory Log"
+                type="text"
+                fullWidth
+                value={rawInput}
+                onChange={handleRawInputChange}
+              />
+
+              {converterError && <div style={{ color: 'red', marginTop: '10px' }}>{converterError}</div>} {/* Display error here */}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseConverter} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleConverterSubmit} color="primary">
+                Submit
+              </Button>
+            </DialogActions>
+          </Dialog>
 
           <Container>
             <div style={{ marginTop: theme.spacing(2) }}>  

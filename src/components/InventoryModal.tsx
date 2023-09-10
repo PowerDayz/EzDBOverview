@@ -28,6 +28,8 @@ function InventoryModal({ inventory, open, handleClose, darkMode, onClose }: { i
     });
   };
 
+  const inventoryArray = Array.isArray(inventory) ? inventory.filter(item => item !== null) : [];
+
   return (
     <Modal
       open={open}
@@ -52,7 +54,7 @@ function InventoryModal({ inventory, open, handleClose, darkMode, onClose }: { i
         <Typography id="inventory-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Inventory</Typography>
         <Grid container spacing={2} sx={{ marginLeft: 1 }}>
           {[...Array(inventorySlots)].map((_, index) => {
-            const item = inventory.find(i => i.slot === index + 1);
+            const item = inventoryArray.find(i => i.slot === index + 1);
             return (
               <Grid item xs={3} key={index} style={{ width: slotSize, height: slotSize+45, minWidth: slotSize, maxWidth: slotSize, border: '1px solid #3c97e9', padding: '10px', marginRight: 3, marginBottom: 3 }}>
                 {item && (

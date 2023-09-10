@@ -28,7 +28,7 @@ function sendOnlinePlayers()
                 })
             end
         else
-            print("Failed to get Player object for source: " .. playerSource)
+            --print("Failed to get Player object for source: " .. playerSource) -- Debug Print Basically i mean it's not really needed. it will trigger if the player is in char select or not logged in yet.
         end
     end    
 
