@@ -154,23 +154,22 @@ function App() {
   const [rawInput, setRawInput] = useState<string>('');
 
   const handleConverterSubmit = () => {
-    // Check for invalid input
     if (rawInput.includes("[object Object]")) {
       console.error("Invalid input detected:", rawInput);
       setConverterError("Invalid input detected. Please provide valid JSON.");
       return;
     }
 
-    // The rest of your function remains the same
     try {
-        const parsedInventory = JSON.parse(rawInput);
-        setPastedInventory(parsedInventory);
-        setConverterOpen(false);
-        setConvertedInventoryOpen(true);
-        setConverterError(null); // reset the error if successful
+      const parsedInventory = JSON.parse(rawInput);
+      setPastedInventory(parsedInventory);
+      setConverterOpen(false);
+      setConvertedInventoryOpen(true);
+      setConverterError(null);
+      setRawInput('');
     } catch (error) {
-        console.error("Failed to parse the pasted inventory", error);
-        setConverterError("Failed to parse the pasted inventory. Please ensure it's valid JSON.");
+      console.error("Failed to parse the pasted inventory", error);
+      setConverterError("Failed to parse the pasted inventory. Please ensure it's valid JSON.");
     }
   };
 
@@ -196,10 +195,10 @@ function App() {
 
     // If a job filter is selected
     if (SearchFilter.job) {
-        results = results.filter(item => {
-            const jobData = typeof item.job === 'string' ? JSON.parse(item.job) : item.job;
-            return jobData.name === SearchFilter.job;
-        });
+      results = results.filter(item => {
+        const jobData = typeof item.job === 'string' ? JSON.parse(item.job) : item.job;
+        return jobData.name === SearchFilter.job;
+      });
     }
 
     // Filter by search term
