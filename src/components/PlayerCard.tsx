@@ -119,6 +119,10 @@ function PlayerCard({ item, darkMode, onlinePlayers }: { item: DataItem, darkMod
     const isOnline = onlinePlayers.some(player => player.citizenid === item.citizenid);
   
     const hasPfp = item.pfp && item.pfp !== "";
+
+    if (!item.license) {
+      return null;
+    }
   
     return (
       <>
