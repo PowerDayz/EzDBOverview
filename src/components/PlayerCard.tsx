@@ -6,20 +6,20 @@ import MapModal from './MapModal';
 import VehicleModal from './VehicleModal';
 
 interface DataItem {
-    inventory: string;
-    metadata: string;
-    position: string;
-    gang: string;
-    job: string;
-    charinfo: string;
-    money: string;
-    license: string;
-    cid: string;
-    citizenid: string;
-    id: number;
-    name: string;
-    vehicles: string;
-    pfp: string;
+  inventory: string;
+  metadata: string;
+  position: string;
+  gang: string;
+  job: string;
+  charinfo: string;
+  money: string;
+  license: string;
+  cid: string;
+  citizenid: string;
+  id: number;
+  name: string;
+  vehicles: string;
+  pfp: string;
 }
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -56,7 +56,6 @@ function PlayerCard({ item, darkMode, onlinePlayers }: { item: DataItem, darkMod
     const [inventoryOpen, setInventoryOpen] = useState(false);
     const [mapOpen, setMapOpen] = useState(false);
     const [vehicleOpen, setVehicleOpen] = useState(false);
-  
     const [avatarColor, setAvatarColor] = useState<string>('');
 
     useEffect(() => {

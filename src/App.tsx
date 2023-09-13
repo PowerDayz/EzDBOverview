@@ -35,9 +35,14 @@ type AnalyticsData = {
   averageMoney: number;
   totalPlayers: number;
   jobWealth: {
-      job: string;
-      averageWealth: number;
+    job: string;
+    averageWealth: number;
   }[];
+  jobCount: {
+    job: string;
+    count: number;
+  }[];
+  totalCars: number;
 };
 
 function App() {
@@ -97,45 +102,69 @@ function App() {
     totalMoney: 0,
     averageMoney: 0,
     totalPlayers: 0,
-    jobWealth: []
+    jobWealth: [],
+    jobCount: [],
+    totalCars: 0
   });
 
   useEffect(() => {
     // If data is populated
     if(data.length > 0) {
-        // Find the richest player
-        const richestPlayerData = data.reduce((max, player) => {
-          const playerTotal = JSON.parse(player.money).cash + JSON.parse(player.money).bank;
-          const maxTotal = JSON.parse(max.money).cash + JSON.parse(max.money).bank;
-          return playerTotal > maxTotal ? player : max;
-        }, data[0]);
+      // Find the richest player
+      const richestPlayerData = data.reduce((max, player) => {
+        const playerTotal = JSON.parse(player.money).cash + JSON.parse(player.money).bank;
+        const maxTotal = JSON.parse(max.money).cash + JSON.parse(max.money).bank;
+        return playerTotal > maxTotal ? player : max;
+      }, data[0]);
   
-        // Get name of the richest player from their charinfo
-        const charInfoRichest = typeof richestPlayerData.charinfo === 'string' ? JSON.parse(richestPlayerData.charinfo) : richestPlayerData.charinfo;
-        const richestPlayerName = `${richestPlayerData.name} / ${charInfoRichest.firstname} ${charInfoRichest.lastname}`;
+      // Get name of the richest player from their charinfo
+      const charInfoRichest = typeof richestPlayerData.charinfo === 'string' ? JSON.parse(richestPlayerData.charinfo) : richestPlayerData.charinfo;
+      const richestPlayerName = `${richestPlayerData.name} / ${charInfoRichest.firstname} ${charInfoRichest.lastname}`;
   
-        // Calculate wealth per job
-        const jobWealthRaw = getWealthPerJob(data);
-        const jobWealth = Object.entries(jobWealthRaw).map(([job, stats]) => {
-            return { job, averageWealth: stats.averageWealth };
-        });
+      // Calculate wealth per job
+      const jobWealthRaw = getWealthPerJob(data);
+      const jobWealth = Object.entries(jobWealthRaw).map(([job, stats]) => {
+        return { job, averageWealth: stats.averageWealth };
+      });
 
-        // Calculate richest player's total money
-        const richestPlayerMoney = JSON.parse(richestPlayerData.money).cash + JSON.parse(richestPlayerData.money).bank;
+      // Calculate richest player's total money
+      const richestPlayerMoney = JSON.parse(richestPlayerData.money).cash + JSON.parse(richestPlayerData.money).bank;
   
-        // Calculate average money
-        const totalMoney = data.reduce((sum, player) => sum + JSON.parse(player.money).cash + JSON.parse(player.money).bank, 0);
-        const averageMoney = totalMoney / data.length;
+      // Calculate average money
+      const totalMoney = data.reduce((sum, player) => sum + JSON.parse(player.money).cash + JSON.parse(player.money).bank, 0);
+      const averageMoney = totalMoney / data.length;
   
-        // Now set the analytics data
-        setAnalyticsData({
-          richestPlayer: richestPlayerName,
-          richestPlayerMoney: richestPlayerMoney,
-          averageMoney: averageMoney,
-          totalMoney: totalMoney,
-          totalPlayers: data.length,
-          jobWealth: jobWealth
-        });        
+      // Calculate job counts
+      const jobCounts = data.reduce<{ [key: string]: number }>((acc, player) => {
+        const jobData = typeof player.job === 'string' ? JSON.parse(player.job) : player.job;
+        const jobName = jobData.name;
+
+        if (!acc[jobName]) {
+          acc[jobName] = 0;
+        }
+
+        acc[jobName]++;
+
+        return acc;
+      }, {});
+
+      const jobCountArray = Object.entries(jobCounts).map(([job, count]) => {
+        return { job, count: count as number };  // Ensure that count is treated as a number
+      });
+
+      const totalCars = data.reduce((count, player) => count + player.vehicles.length, 0);
+
+      // Now set the analytics data
+      setAnalyticsData({
+        richestPlayer: richestPlayerName,
+        richestPlayerMoney: richestPlayerMoney,
+        averageMoney: averageMoney,
+        totalMoney: totalMoney,
+        totalPlayers: data.length,
+        jobWealth: jobWealth,
+        jobCount: jobCountArray,
+        totalCars: totalCars
+      });        
     }
   }, [data]);
 
@@ -276,6 +305,7 @@ function App() {
                 handleClose={handleCloseAnalytics}
                 data={analyticsData}
                 darkMode={darkMode}
+                theme={theme}
               />
             </Toolbar>
           </AppBar>
