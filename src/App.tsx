@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, TextField, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions } from '@mui/material';
+import { Container, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, TextField, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions, Menu, MenuItem, Typography } from '@mui/material';
 import { Brightness4, Brightness7, Analytics } from '@mui/icons-material';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import Box from '@mui/material/Box';
 import PlayerCard from './components/PlayerCard';
@@ -45,12 +46,19 @@ type AnalyticsData = {
   totalCars: number;
 };
 
-function App() {
+interface AppProps {
+  loggedInUser: { username: string, rank: string } | null;
+  setLoggedInUser: (user: { username: string, rank: string } | null) => void;
+  darkMode: boolean;
+  setDarkMode?: (mode: boolean) => void;
+}
+
+function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps) {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
   const [onlinePlayers, setOnlinePlayers] = useState<DataItem[]>([]);
   const [data, setData] = useState<DataItem[]>([]);
-  const [darkMode, setDarkMode] = useState(true); // Now Starts in Dark Mode
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const theme = createTheme({
     palette: {
@@ -61,6 +69,30 @@ function App() {
     },
   });
 
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('loggedInUser');
+    if (savedUser) {
+      setLoggedInUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (loggedInUser) {
+      localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
+    } else {
+      localStorage.removeItem('loggedInUser');
+    }
+  }, [loggedInUser]);
+
+  
   useEffect(() => {
     // Call our API endpoint and set data
     axios.get<DataItem[]>('http://localhost:3001/getData', {
@@ -237,6 +269,19 @@ function App() {
   }, [searchTerm, data, SearchFilter, onlinePlayers]);
 
   const parsedInventory = typeof pastedInventory === 'string' ? JSON.parse(pastedInventory) : pastedInventory;
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+    
+    window.location.reload();
+  };
+
+  const handleDarkModeToggle = () => {
+    const toggleFunction = setDarkMode || (() => {});
+    toggleFunction(!darkMode);
+  }
+
   return (
     <>
       <style>{`
@@ -266,103 +311,160 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Container>
-          <AppBar position="fixed">
-            <Toolbar style={{ display: 'flex' }}>
-              <Tooltip title="Change Theme!" placement='bottom' arrow>
-                <IconButton onClick={() => setDarkMode(!darkMode)} edge="start" color="inherit">
-                  {darkMode ? <Brightness7 /> : <Brightness4 />}
-                </IconButton>
-              </Tooltip>
-      
-              <Box flexGrow={1} />
+          {
+            loggedInUser?.rank === 'User' && (
+              <>
+                <AppBar position="fixed">
+                  <Toolbar style={{ display: 'flex' }}>
+                    <Tooltip title="User Menu" placement='bottom' arrow sx={{ marginRight: 3 }}>
+                      <IconButton onClick={handleMenuOpen} edge="start" color="inherit">
+                        <AccountBoxIcon />
+                      </IconButton>
+                    </Tooltip>
               
-              <Tooltip title="Inventory Log Converter" placement='bottom' arrow sx={{ marginRight: 3 }}>
-                <IconButton onClick={() => setConverterOpen(true)} edge="start" color="inherit">
-                  <InventoryIcon />
-                </IconButton>
-              </Tooltip>
+                    <Tooltip title="Change Theme!" placement='bottom' arrow>
+                      <IconButton onClick={() => handleDarkModeToggle()} edge="start" color="inherit">
+                        {darkMode ? <Brightness7 /> : <Brightness4 />}
+                      </IconButton>
+                    </Tooltip>
+                  </Toolbar>
+                </AppBar>
 
-              <InventoryModal
-                inventory={parsedInventory}
-                open={convertedInventoryOpen}
-                handleClose={() => setConvertedInventoryOpen(false)}
-                darkMode={darkMode}
-                onClose={(event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => {
-                  if (reason === "backdropClick") {
-                    event.stopPropagation();
-                  }
-                }}
-              />
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                >
+                  <MenuItem disabled>{"Username: " + loggedInUser?.username || 'Error 404'}</MenuItem>
+                  <MenuItem disabled>{"Rank: " + loggedInUser?.rank || 'Error 404'}</MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                </Menu>
 
-              <Tooltip title="Server Statistics" placement='bottom' arrow>
-                <IconButton onClick={handleOpenAnalytics} edge="start" color="inherit">
-                  <Analytics />
-                </IconButton>
-              </Tooltip>
+                <div style={{ marginTop: theme.spacing(10) }}>
+                  <Typography variant='h5' gutterBottom>
+                    You are not authorized to view this page. Please contact an administrator if you believe this is a mistake.
+                  </Typography>
+                </div>
+              </>
+            )}
+            { (loggedInUser?.rank === 'Admin' || loggedInUser?.rank === 'God') && (
+              <>
+                <AppBar position="fixed">
+                  <Toolbar style={{ display: 'flex' }}>
+                    <Tooltip title="User Menu" placement='bottom' arrow sx={{ marginRight: 3 }}>
+                      <IconButton onClick={handleMenuOpen} edge="start" color="inherit">
+                        <AccountBoxIcon />
+                      </IconButton>
+                    </Tooltip>
 
-              <AnalyticsModal
-                open={analyticsOpen}
-                handleClose={handleCloseAnalytics}
-                data={analyticsData}
-                darkMode={darkMode}
-                theme={theme}
-              />
-            </Toolbar>
-          </AppBar>
-      
-          <div style={{ marginTop: theme.spacing(10) }}>
-            <TextField
-              variant="standard"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search for player by steam name..."
-              style={{ width: '100%', marginBottom: theme.spacing(2) }}
-            />
-          </div>
+                    <Tooltip title="Change Theme!" placement='bottom' arrow>
+                      <IconButton onClick={() => handleDarkModeToggle()} edge="start" color="inherit">
+                        {darkMode ? <Brightness7 /> : <Brightness4 />}
+                      </IconButton>
+                    </Tooltip>
 
-          <SearchFilters 
-            SearchFilter={SearchFilter}
-            setSearchFilter={setSearchFilter}
-            darkMode={darkMode}
-            theme={theme}
-          />
+                    <Box flexGrow={1} />
 
-          <Dialog open={converterOpen} onClose={handleCloseConverter}>
-            <DialogTitle>Inventory Log Converter</DialogTitle>
-            <DialogContent>
-              <DialogContentText sx={{ marginBottom: 2 }}>
-                Please paste your inventory log below. With out without the Playername, CitizenID, id and items set:
-              </DialogContentText>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="name"
-                label="Inventory Log"
-                type="text"
-                fullWidth
-                value={rawInput}
-                onChange={handleRawInputChange}
-              />
+                    <Tooltip title="Inventory Log Converter" placement='bottom' arrow sx={{ marginRight: 3 }}>
+                      <IconButton onClick={() => setConverterOpen(true)} edge="start" color="inherit">
+                        <InventoryIcon />
+                      </IconButton>
+                    </Tooltip>
 
-              {converterError && <div style={{ color: 'red', marginTop: '10px' }}>{converterError}</div>} {/* Display error here */}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseConverter} color="primary">
-                Cancel
-              </Button>
-              <Button onClick={handleConverterSubmit} color="primary">
-                Submit
-              </Button>
-            </DialogActions>
-          </Dialog>
+                    <InventoryModal
+                      inventory={parsedInventory}
+                      open={convertedInventoryOpen}
+                      handleClose={() => setConvertedInventoryOpen(false)}
+                      darkMode={darkMode}
+                      onClose={(event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => {
+                        if (reason === "backdropClick") {
+                          event.stopPropagation();
+                        }
+                      }}
+                    />
 
-          <Container>
-            <div style={{ marginTop: theme.spacing(2) }}>  
-              {filteredData.map(item => (
-                <PlayerCard key={item.id} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} />
-              ))}
-            </div>
-          </Container>
+                    <Tooltip title="Server Statistics" placement='bottom' arrow>
+                      <IconButton onClick={handleOpenAnalytics} edge="start" color="inherit">
+                        <Analytics />
+                      </IconButton>
+                    </Tooltip>
+                    
+                    <AnalyticsModal
+                      open={analyticsOpen}
+                      handleClose={handleCloseAnalytics}
+                      data={analyticsData}
+                      darkMode={darkMode}
+                      theme={theme}
+                    />
+                  </Toolbar>
+                </AppBar>
+
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                >
+                  <MenuItem disabled>{"Username: " + loggedInUser?.username || 'Error 404'}</MenuItem>
+                  <MenuItem disabled>{"Rank: " + loggedInUser?.rank || 'Error 404'}</MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                </Menu>
+
+                <div style={{ marginTop: theme.spacing(10) }}>
+                  <TextField
+                    variant="standard"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search for player by steam name..."
+                    style={{ width: '100%', marginBottom: theme.spacing(2) }}
+                  />
+                </div>
+
+                <SearchFilters 
+                  SearchFilter={SearchFilter}
+                  setSearchFilter={setSearchFilter}
+                  darkMode={darkMode}
+                  theme={theme}
+                />
+
+                <Dialog open={converterOpen} onClose={handleCloseConverter}>
+                  <DialogTitle>Inventory Log Converter</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText sx={{ marginBottom: 2 }}>
+                      Please paste your inventory log below. With out without the Playername, CitizenID, id and items set:
+                    </DialogContentText>
+                    <TextField
+                      autoFocus
+                      margin="dense"
+                      id="name"
+                      label="Inventory Log"
+                      type="text"
+                      fullWidth
+                      value={rawInput}
+                      onChange={handleRawInputChange}
+                    />
+
+                    {converterError && <div style={{ color: 'red', marginTop: '10px' }}>{converterError}</div>} {/* Display error here */}
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseConverter} color="primary">
+                      Cancel
+                    </Button>
+                    <Button onClick={handleConverterSubmit} color="primary">
+                      Submit
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+
+                <Container>
+                  <div style={{ marginTop: theme.spacing(2) }}>  
+                    {filteredData.map(item => (
+                      <PlayerCard key={item.id} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} />
+                    ))}
+                  </div>
+                </Container>
+              </>
+            )
+          }
         </Container>
       </ThemeProvider>
     </>

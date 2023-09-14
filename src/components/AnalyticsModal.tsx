@@ -73,16 +73,16 @@ function AnalyticsModal({ open, handleClose, data, darkMode, theme }: { open: bo
           alignItems="center"
         >
           <RadarChart cx={250} cy={200} outerRadius={150} width={500} height={400} data={data.jobWealth}>
-            <PolarGrid />
-            <PolarAngleAxis dataKey="job" />
-            <PolarRadiusAxis domain={[0, 50000]} /> {/* dont know why i need a max value tbh.. cus im pretty sure its just taking the richest plyer's money for the max. */}
+            <PolarGrid stroke="#666666" />
+            <PolarAngleAxis dataKey="job" stroke="#666666" />
+            <PolarRadiusAxis stroke="#666666" /> {/* dont know why i need a max value tbh.. cus im pretty sure its just taking the richest plyer's money for the max. */}
             <Radar name="Job Wealth" dataKey="averageWealth" stroke={darkMode ? "#8884d8" : "#3976CE"} fill={darkMode ? "#8884d8" : "#3976CE"} fillOpacity={0.6} />
           </RadarChart>
 
           <BarChart width={400} height={400} data={dataForBarChart} style={{ color: 'black' }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" /> 
-            <YAxis />
+            <CartesianGrid strokeDasharray="3 3" stroke="#666666" />
+            <XAxis dataKey="name" stroke="#666666" /> 
+            <YAxis stroke="#666666" />
             <RechartsTooltip />
             <Bar dataKey="value" name='Player Wealth' fill={darkMode ? "#8884d8" : "#3976CE"} fillOpacity={0.6} />
           </BarChart>
@@ -101,7 +101,7 @@ function AnalyticsModal({ open, handleClose, data, darkMode, theme }: { open: bo
               <Chip 
                 label={`${jobData.job}: (${jobData.count})`}  
                 sx={{ 
-                  color: darkMode ? '#fff' : '#000', 
+                  color: darkMode ? '#fff' : '#000',
                   userSelect: 'none', 
                   backgroundColor: darkMode ? "rgb(136, 132, 216, 0.6)" : "rgb(57, 118, 206, 0.6)", 
                   fillOpacity: 0.6 

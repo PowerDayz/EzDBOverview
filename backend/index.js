@@ -3,9 +3,18 @@ const mysql = require('mysql');
 const createConnection = mysql.createConnection;
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = 3001;
+
+//const generatesecret = crypto.randomBytes(64).toString('hex'); // Used to generate a secret key for JWT
+//console.log(generatesecret);
+
+require('dotenv').config();
+const secret = process.env.JWT_SECRET;
 
 // This will add the CORS headers to the response
 app.use(cors());
@@ -84,6 +93,87 @@ app.get('/getData', (req, res) => {
 
         res.json(Object.values(aggregatedResults));
     });
+});
+
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    const query = "SELECT * FROM ezdbusers WHERE username = ?";
+    db.query(query, [username], (err, results) => {
+        if (err) throw err;
+
+        if (results.length === 0) {
+            return res.status(401).json({ message: 'Username or password is incorrect' });
+        }
+
+        const user = results[0];
+
+        bcrypt.compare(password, user.hashed_password, (err, isMatch) => {
+            if (err) throw err;
+
+            if (!isMatch) {
+                return res.status(401).json({ message: 'Username or password is incorrect' });
+            }
+
+            const token = jwt.sign({ 
+                id: user.id, 
+                username: user.username, 
+                role: user.role 
+            }, secret, { expiresIn: '1h' });
+
+            return res.json({ token });
+        });
+    });
+});
+
+app.post('/register', (req, res) => {
+    const { username, password, role } = req.body;
+
+    // First, hash the password
+    bcrypt.hash(password, 10, (err, hashedPassword) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error hashing password' });
+        }
+
+        // Store the hashed password in the database
+        const query = "INSERT INTO ezdbusers (username, hashed_password, role) VALUES (?, ?, ?)";
+        db.query(query, [username, hashedPassword, role], (err, results) => {
+            if (err) {
+                // Handle duplicate username error
+                if(err.code === 'ER_DUP_ENTRY') {
+                    return res.status(400).json({ message: 'Username already exists' });
+                }
+                throw err;
+            }
+
+            res.json({ message: 'User registered successfully' });
+        });
+    });
+});
+
+app.get('/getUserRole', (req, res) => {
+    try {
+        const token = req.headers.authorization.split(" ")[1];  // Assuming Bearer token
+        const decoded = jwt.verify(token, secret);
+        
+        // Send the role back to the frontend
+        res.json({ role: decoded.role });
+        console.log(decoded);
+    } catch (err) {
+        res.status(401).json({ message: 'Invalid token' });
+    }
+});
+
+// Sign a token
+const token = jwt.sign({  }, secret, { expiresIn: '1h' });
+
+// Verify a token
+jwt.verify(token, secret, (err, decoded) => {
+  if (err) {
+    console.log("Token is not valid");
+  } else {
+    console.log("Token is valid", decoded);
+  }
 });
 
 let onlinePlayers = [];

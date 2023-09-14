@@ -46,6 +46,7 @@ ensure pw-ezdboverview
 
 - Go to `backend/index.js`
 - Edit the `createConnection` to match your database
+- Import the `Import_This_PLZ.sql` to your database
 
 ### **4. Backend Setup**:
 
@@ -62,6 +63,13 @@ cd EzDBOverview
 npm install
 npm start
 ```
+
+### **6. Getting God Perms**:
+
+- Start of by creating an account in the app
+- Goto your database. Goto the `ezdbusers` table and change the perm of the account you just made to God.
+
+#### (I will add a way to change other users perms'n stuff later on. For now just manually change it in the db.)
 
 Your web app should now be running on `http://localhost:3000/` or the next available port, and you should be able to view and navigate through your database structure.
 
