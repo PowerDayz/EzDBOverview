@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, TextField, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions, Menu, MenuItem, Typography } from '@mui/material';
+import { Container, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, TextField, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions, Menu, MenuItem, Typography, List, ListItem, ListItemText, FormControl, InputLabel, Select, Grid, Snackbar, Alert } from '@mui/material';
 import { Brightness4, Brightness7, Analytics } from '@mui/icons-material';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import GroupsIcon from '@mui/icons-material/Groups';
 import Box from '@mui/material/Box';
 import PlayerCard from './components/PlayerCard';
 import AnalyticsModal from './components/AnalyticsModal';
@@ -27,6 +29,11 @@ interface DataItem {
   name: string;
   vehicles: string;
   pfp: string;
+}
+
+interface AdminUsernames {
+  username: string;
+  role: string;
 }
 
 type AnalyticsData = {
@@ -57,6 +64,7 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
   const [onlinePlayers, setOnlinePlayers] = useState<DataItem[]>([]);
+  const [adminUserNames, setadminUserNames] = useState<AdminUsernames[]>([]);
   const [data, setData] = useState<DataItem[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -101,13 +109,19 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
       }
     })
     .then(response => {
-        setData(response.data);
-        setFilteredData(response.data);
+      setData(response.data);
+      setFilteredData(response.data);
     })
     .catch(error => {
-        console.error("There was an error fetching data", error);
+      console.error("There was an error fetching data", error);
     });
   }, []);
+
+  useEffect(() => {
+    if (loggedInUser?.rank === 'God') {
+      fetchAdminUsernames();
+    }
+  }, [loggedInUser?.rank]);
 
   useEffect(() => {
     axios.get('http://localhost:3001/getOnlinePlayers')
@@ -282,6 +296,65 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
     toggleFunction(!darkMode);
   }
 
+  const [isManageStaffModalOpen, setIsManageStaffModalOpen] = useState(false);
+  const [stagedAdminRoles, setStagedAdminRoles] = useState<Record<string, string>>({});
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+    setSnackbarMessage('');
+  };
+
+  const fetchAdminUsernames = () => {
+    axios.get('http://localhost:3001/getAdminUsernames')
+      .then(response => {
+        setadminUserNames(response.data);
+      })
+      .catch(error => {
+        console.error("There was an error fetching admin usernames", error);
+      });
+  };
+
+  const handleRoleChange = (username: string, newRole: string) => {
+    setStagedAdminRoles(prevState => ({ ...prevState, [username]: newRole }));
+  };
+
+  const deleteAdmin = (username: string) => {
+    axios.delete(`http://localhost:3001/admin/${username}`)
+      .then(response => {
+        setSnackbarMessage('Admin deleted successfully.');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+        fetchAdminUsernames();
+      })
+      .catch(error => {
+        console.error("There was an error deleting the admin", error);
+        setSnackbarMessage('Error deleting the admin.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      });
+  }
+
+  const handleSaveChanges = () => {
+    axios.put('http://localhost:3001/admin', stagedAdminRoles)
+      .then(response => {
+        setSnackbarMessage('Roles updated successfully.');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+        setIsManageStaffModalOpen(false);
+        setStagedAdminRoles({});
+        fetchAdminUsernames();
+      })
+      .catch(error => {
+        console.error("There was an error updating the roles", error);
+        setSnackbarMessage('Error updating the roles.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      });
+  }
+
   return (
     <>
       <style>{`
@@ -357,6 +430,14 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
                       </IconButton>
                     </Tooltip>
 
+                    {loggedInUser?.rank === 'God' && (
+                      <Tooltip title="Manage Staff" placement='bottom' arrow sx={{ marginRight: 3 }}>
+                        <IconButton onClick={() => setIsManageStaffModalOpen(true)} edge="start" color="inherit">
+                          <GroupsIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+
                     <Tooltip title="Change Theme!" placement='bottom' arrow>
                       <IconButton onClick={() => handleDarkModeToggle()} edge="start" color="inherit">
                         {darkMode ? <Brightness7 /> : <Brightness4 />}
@@ -398,6 +479,60 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
                     />
                   </Toolbar>
                 </AppBar>
+
+                <Dialog open={isManageStaffModalOpen} onClose={() => setIsManageStaffModalOpen(false)}>
+                  <DialogTitle>Manage Staff</DialogTitle>
+                  <DialogContent>
+                    <List>
+                      {adminUserNames.map(admin => (
+                        <ListItem key={admin.username}>
+                          <Grid
+                            container
+                            direction="row"
+                            justifyContent="flex-start"
+                            alignItems="center"
+                          >
+                            {loggedInUser?.username !== admin.username ? (
+                              <>
+                              <Tooltip title="Delete User (Cannot be reverted!)" placement='bottom' arrow sx={{ marginRight: 1, marginTop: 1.5 }}>
+                                <IconButton edge="start" color="inherit" onClick={() => deleteAdmin(admin.username)}>
+                                  <DeleteForeverIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <ListItemText primary={admin.username+":"} sx={{ marginRight: 3, marginTop: 2 }} />
+                              </>
+                            ) : (
+                              <ListItemText primary={admin.username+":"} sx={{ paddingLeft: 4.25, marginTop: 2 }} /> /* idfk whats going on here tbh but it works lmao */
+                            )}
+
+                          </Grid>
+                          <FormControl variant="standard" sx={{ minWidth: 200 }}>
+                            <InputLabel>Role</InputLabel>
+                            <Select
+                              value={stagedAdminRoles[admin.username] || admin.role}
+                              onChange={event => handleRoleChange(admin.username, event.target.value as string)}
+                              label="Role"
+                            >
+                              <MenuItem value="User">User</MenuItem>
+                              <MenuItem value="Admin">Admin</MenuItem>
+                              <MenuItem value="God">God</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={() => setIsManageStaffModalOpen(false)}>Cancel</Button>
+                    <Button onClick={handleSaveChanges} color="primary">Save Changes</Button>
+                  </DialogActions>
+                </Dialog>
+
+                <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+                  <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                  </Alert>
+                </Snackbar>
 
                 <Menu
                   anchorEl={anchorEl}
@@ -457,8 +592,8 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
 
                 <Container>
                   <div style={{ marginTop: theme.spacing(2) }}>  
-                    {filteredData.map(item => (
-                      <PlayerCard key={item.id} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} />
+                    {filteredData.map((item, index) => (
+                       <PlayerCard key={item.id || index} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} />
                     ))}
                   </div>
                 </Container>

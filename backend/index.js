@@ -95,6 +95,48 @@ app.get('/getData', (req, res) => {
     });
 });
 
+app.get('/getAdminUsernames', (req, res) => {
+    const sql = `
+        SELECT username, role
+        FROM ezdbusers
+    `;
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error(err);
+            res.status(500).json({ error: 'An error occurred while fetching admin usernames.' });
+            return;
+        }
+        res.json(results);
+    });
+    
+});
+
+app.delete('/admin/:username', (req, res) => {
+    const username = req.params.username;
+ 
+    const sql = `DELETE FROM ezdbusers WHERE username = ?`;
+ 
+    db.query(sql, [username], (err, results) => {
+       if (err) return res.status(500).json({ error: 'An error occurred while deleting the admin.' });
+       res.json({ message: 'Admin deleted successfully.' });
+    });
+});
+
+app.put('/admin', (req, res) => {
+    const changes = req.body;
+ 
+    let queries = [];
+ 
+    for (let [username, role] of Object.entries(changes)) {
+       queries.push(db.query(`UPDATE ezdbusers SET role = ? WHERE username = ?`, [role, username]));
+    }
+ 
+    Promise.all(queries)
+       .then(() => res.json({ message: 'Roles updated successfully.' }))
+       .catch(err => res.status(500).json({ error: 'An error occurred while updating roles.' }));
+});
+
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
