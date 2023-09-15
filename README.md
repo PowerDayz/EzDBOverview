@@ -15,6 +15,7 @@
 ![Picture4](https://github.com/PowerDayz/EzDBOverview/assets/50378849/5cc37780-d644-4aab-9683-3e7bc960de7a)
 ![Picture6](https://github.com/PowerDayz/EzDBOverview/assets/50378849/49253f61-d88b-4ba5-9ff0-ca1eb1e97719)
 ![Picture7](https://github.com/PowerDayz/EzDBOverview/assets/50378849/f0a14ce0-313d-41b3-95c3-a9b12d5015f5)
+![Picture8](https://github.com/PowerDayz/EzDBOverview/assets/50378849/7a84e4ee-c106-44cc-868a-dc248e075fa4)
 
 ## **Configuration**:
 
