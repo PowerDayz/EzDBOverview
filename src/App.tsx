@@ -355,6 +355,14 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
       });
   }
 
+  const clearToken = () => {
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+
+    window.location.reload();
+  }
+  console.log(loggedInUser); // If the page is just loading blank check this to see if the token is being set properly
+
   return (
     <>
       <style>{`
@@ -384,6 +392,27 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Container>
+          {loggedInUser === null && (
+            <Dialog open={true}>
+              <DialogTitle>Error 404</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Your token was not found.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Grid
+                  container
+                  direction="row-reverse"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Button onClick={clearToken}>Clear Token</Button>
+                </Grid>
+              </DialogActions>
+            </Dialog>
+          )}
+        
           {
             loggedInUser?.rank === 'User' && (
               <>
