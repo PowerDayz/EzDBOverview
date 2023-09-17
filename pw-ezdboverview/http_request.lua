@@ -1,4 +1,46 @@
 QBCore = exports['qb-core']:GetCoreObject()
+local MySQL = exports.oxmysql
+
+-- Table to store the start time for each player
+local playerSessionStart = {}
+
+-- When a player joins, start a timer and insert the session start into the database
+RegisterServerEvent('playerJoined')
+AddEventHandler('playerJoined', function()
+    Citizen.CreateThread(function()
+        local plysource = source
+        local Player = QBCore.Functions.GetPlayer(plysource)
+        
+        if Player then
+            local citizenId = Player.PlayerData.citizenid
+            playerSessionStart[citizenId] = os.time()
+
+            -- Insert session start into the database
+            local id = MySQL.insert.await('INSERT INTO `player_sessions` (citizenid, session_start) VALUES (?, NOW())', {
+                citizenId
+            })
+        end
+    end)
+end)
+
+-- When a player leaves, calculate session duration and update it into the database
+AddEventHandler('playerDropped', function(reason)
+    local plysource = source
+    local Player = QBCore.Functions.GetPlayer(plysource)
+    if Player then
+        local citizenId = Player.PlayerData.citizenid
+        local sessionEndTime = os.time()
+
+        if playerSessionStart[citizenId] then
+            local sessionDuration = sessionEndTime - playerSessionStart[citizenId]
+
+            -- Update session duration and session end in the database
+            MySQL.execute('UPDATE `player_sessions` SET session_end = NOW(), duration = ? WHERE citizenid = ? AND session_end IS NULL', {
+                sessionDuration, citizenId
+            })
+        end
+    end
+end)
 
 function sendOnlinePlayers()
     local players = GetPlayers()  -- Get list of online players

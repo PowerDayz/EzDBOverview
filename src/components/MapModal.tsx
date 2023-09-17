@@ -1,46 +1,78 @@
+import React, { useEffect, useRef } from 'react';
 import { Box, Modal, Typography } from "@mui/material";
+import L from 'leaflet';
+import GtaMap from './../mapassets/gtav-map-atlas-huge.jpg';
+import PlayerMarker from './../mapassets/playermarker.png';
 
 function MapModal({ open, handleClose, position, darkMode }: { open: boolean, handleClose: () => void, position: { x: number, y: number, z: number }, darkMode: boolean }) {
-    const mapBounds = {
-      topLeft: {x: -5700, y: 8400},
-      bottomRight: {x: 6600, y: -4000}
+  const mapRef = useRef(null);
+  let map: L.Map;
+  let marker: L.Marker;
+
+  var markerIcon = L.icon({
+    iconUrl: PlayerMarker,
+    iconSize: [7.68, 10.24],
+    iconAnchor: [3.84, 5.12],
+    popupAnchor: [0, -5.12]
+  });
+
+  const YOffsetCoord = 4350;
+
+  useEffect(() => {
+    if (open && mapRef.current) {
+      map = L.map(mapRef.current, {
+        crs: L.CRS.Simple,
+        minZoom: -15,
+        center: [1500, 1500],
+      }).setView([position.y-YOffsetCoord, position.x], 1);
+
+      const imageUrl = GtaMap;
+      const xScale = (6690.999 + 5659.689) / 2000;
+      const yScale = (8426.220 + 4058.537) / 2000;
+
+      const leftBound = 0 * xScale - 5659.689;
+      const topBound = 0 * yScale - 8426.220;
+      const rightBound = 2000 * xScale - 5659.689;
+      const bottomBound = 2000 * yScale - 8426.220;
+
+      const imageBounds: L.LatLngBoundsExpression = [
+        [topBound, leftBound] as L.LatLngTuple, 
+        [bottomBound, rightBound] as L.LatLngTuple
+      ];      
+
+      L.imageOverlay(imageUrl, imageBounds).addTo(map);
+      marker = L.marker([position.y-YOffsetCoord, position.x], {icon: markerIcon}).addTo(map);
+    }
+
+    return () => {
+      if (map) {
+        map.remove();
+      }
     };
-    
-    const xOffset = 917;
-    const yOffset = 1348;
-  
-    const xPercentage = (position.x - mapBounds.topLeft.x) / (mapBounds.bottomRight.x - mapBounds.topLeft.x);
-    const yPercentage = 1 - (position.y - mapBounds.topLeft.y) / (mapBounds.bottomRight.y - mapBounds.topLeft.y);
-    const xPositionOnImage = xPercentage * 1000 + xOffset - 12.5;
-    const yPositionOnImage = yPercentage * 1000 + yOffset - 12.5;
-  
-    /*console.log(`xPositionOnImage: ${xPositionOnImage}`);
-    console.log(`yPositionOnImage: ${yPositionOnImage}`);*/
-  
-    return (
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="map-modal-title"
-        aria-describedby="map-modal-description"
+  }, [open, position]);
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="map-modal-title"
+      aria-describedby="map-modal-description"
+    >
+      <Box 
+        style={{ 
+          width: '80%', 
+          margin: '5% auto', 
+          backgroundColor: darkMode ? 'rgb(51,51,51,0.8)' : 'rgb(255,255,255,0.8)', 
+          padding: '20px', 
+          outline: 'none', 
+          color: darkMode ? 'white' : 'black' 
+        }}
       >
-        <Box 
-          style={{ 
-            width: '80%', 
-            margin: '5% auto', 
-            backgroundColor: darkMode ? 'rgb(51,51,51,0.8)' : 'rgb(255,255,255,0.8)', 
-            padding: '20px', 
-            outline: 'none', 
-            color: darkMode ? 'white' : 'black' 
-          }}
-        >
-          <Typography id="map-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Player Coords: {position.x}, {position.y}, {position.z}</Typography>
-          <img src="/map/gtav-map-atlas-huge.jpg" alt="GTA Map" style={{ maxWidth: '80%', maxHeight: '700px', position: 'relative' }}/>
-          <img src="/map/marker.png" alt="Marker" style={{ position: 'absolute', left: xOffset, top: yOffset, width: '25px', height: '20px' }} />
-          <Typography>Will add a marker at the right place later.. for now this is fine</Typography>
-        </Box>
-      </Modal>
-    );
+        <Typography id="map-modal-title" variant="h5" style={{ marginBottom: 20/* , userSelect: 'none' */ }}>Player Coords: {position.x}, {position.y}, {position.z}</Typography>
+        <div id="map" ref={mapRef} style={{ height: 650, width: '100%' }}></div>
+      </Box>
+    </Modal>
+  );
 }
 
 export default MapModal;

@@ -95,6 +95,41 @@ app.get('/getData', (req, res) => {
     });
 });
 
+// Endpoint to save session duration
+app.post('/setSessionDuration', (req, res) => {
+    const { citizenid, duration } = req.body;
+    const sessionEnd = new Date();
+    const sessionStart = new Date(sessionEnd - duration * 1000); // milliseconds to seconds
+
+    const sql = `
+        INSERT INTO player_sessions (citizenid, session_start, session_end, duration)
+        VALUES (?, ?, ?, ?)
+    `;
+
+    db.query(sql, [citizenid, sessionStart, sessionEnd, duration], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'An error occurred while saving the session duration.' });
+        }
+        res.json({ message: 'Session duration saved successfully.' });
+    });
+});
+
+app.get('/getAveragePlaytime', (req, res) => {
+    const sql = `
+        SELECT AVG(duration) as average_duration
+        FROM player_sessions
+    `;
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'An error occurred while fetching average playtime.' });
+        }
+        res.json({ averagePlaytime: results[0].average_duration });
+    });
+});
+
 app.get('/getAdminUsernames', (req, res) => {
     const sql = `
         SELECT username, role
