@@ -11,12 +11,11 @@
 ![Picture1](https://github.com/PowerDayz/EzDBOverview/assets/50378849/7462eef7-6432-4923-a525-bc89bbbbdb8d)
 ![Picture2](https://github.com/PowerDayz/EzDBOverview/assets/50378849/64cb7566-60ea-4a5d-b229-403d4c7a835a)
 ![Picture3](https://github.com/PowerDayz/EzDBOverview/assets/50378849/47b08fe9-5271-4552-b099-bf47d138da86)
-![Picture5](https://github.com/PowerDayz/EzDBOverview/assets/50378849/d092b8bd-3dd0-4688-9214-824de8216cc8)
 ![Picture4](https://github.com/PowerDayz/EzDBOverview/assets/50378849/5cc37780-d644-4aab-9683-3e7bc960de7a)
+![Picture5](https://github.com/PowerDayz/EzDBOverview/assets/50378849/7b1c3c69-eeda-492e-b775-31df9e9bafe4)
 ![Picture6](https://github.com/PowerDayz/EzDBOverview/assets/50378849/49253f61-d88b-4ba5-9ff0-ca1eb1e97719)
 ![Picture7](https://github.com/PowerDayz/EzDBOverview/assets/50378849/f0a14ce0-313d-41b3-95c3-a9b12d5015f5)
 ![Picture8](https://github.com/PowerDayz/EzDBOverview/assets/50378849/7a84e4ee-c106-44cc-868a-dc248e075fa4)
-![Picture9](https://github.com/PowerDayz/EzDBOverview/assets/50378849/f04d1b01-5e15-4b62-87da-bea5f6aa093c)
 
 ## **Configuration**:
 
