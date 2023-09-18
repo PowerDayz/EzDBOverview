@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { Box, Modal, Typography } from "@mui/material";
 import L from 'leaflet';
 import GtaMap from './../mapassets/gtav-map-atlas-huge.jpg';
-import PlayerMarker from './../mapassets/playermarker.png';
+import PlayerMarker from './../mapassets/user-solid.png';
+import HouseMarker from './../mapassets/house-solid.png';
 
 function MapModal({ open, handleClose, position, darkMode }: { open: boolean, handleClose: () => void, position: { x: number, y: number, z: number }, darkMode: boolean }) {
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -11,12 +12,19 @@ function MapModal({ open, handleClose, position, darkMode }: { open: boolean, ha
 
   var markerIcon = L.icon({
     iconUrl: PlayerMarker,
-    iconSize: [7.68, 10.24],
-    iconAnchor: [3.84, 5.12],
-    popupAnchor: [0, -5.12]
+    iconSize: [12.8, 14.63],
+    iconAnchor: [6.4, 14.63],
+    popupAnchor: [0, -7.31]
   });
 
-  const YOffsetCoord = 4350;
+  var houseIcon = L.icon({
+    iconUrl: HouseMarker,
+    iconSize: [16.46, 14.63],
+    iconAnchor: [8.23, 14.63],
+    popupAnchor: [0, -7.31]
+  });
+
+  const YOffsetCoord = 4360;
 
   useEffect(() => {
     if (open) {
@@ -44,6 +52,9 @@ function MapModal({ open, handleClose, position, darkMode }: { open: boolean, ha
 
           L.imageOverlay(imageUrl, imageBounds).addTo(map);
           marker = L.marker([position.y-YOffsetCoord, position.x], {icon: markerIcon}).addTo(map);
+
+          // Debug Marker
+          // marker = L.marker([69-YOffsetCoord, 69], {icon: houseIcon}).addTo(map); // dont mind this for now..
         } else {
           setTimeout(initializeMap, 100);
         }
@@ -53,9 +64,9 @@ function MapModal({ open, handleClose, position, darkMode }: { open: boolean, ha
     }
 
     return () => {
-        if (map) {
-            map.remove();
-        }
+      if (map) {
+        map.remove();
+      }
     };
   }, [open]);
 
@@ -76,7 +87,7 @@ function MapModal({ open, handleClose, position, darkMode }: { open: boolean, ha
           color: darkMode ? 'white' : 'black' 
         }}
       >
-        <Typography id="map-modal-title" variant="h5" style={{ marginBottom: 20/* , userSelect: 'none' */ }}>Player Coords: {position.x}, {position.y}, {position.z}</Typography>
+        <Typography id="map-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Player Coords: {position.x}, {position.y}, {position.z}</Typography>
         {open && <div id="map" ref={mapRef} style={{ height: 650, width: '100%' }}></div>}
       </Box>
     </Modal>
