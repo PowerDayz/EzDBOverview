@@ -36,22 +36,49 @@ db.connect((err) => {
 
 app.get('/getData', (req, res) => {
     const usingPsMdt = req.query.usingPsMdt === 'true';
+    const usingPsHousing = req.query.usingPsHousing === 'true';
 
-    const sql = `
+    let sql = `
         SELECT players.*, 
-               player_vehicles.vehicle, 
-               player_vehicles.plate, 
-               player_vehicles.garage, 
-               player_vehicles.fuel, 
-               player_vehicles.engine, 
-               player_vehicles.body, 
-               player_vehicles.drivingdistance, 
-               player_vehicles.mods,
-               mdt_data.pfp
+            player_vehicles.vehicle, 
+            player_vehicles.plate, 
+            player_vehicles.garage, 
+            player_vehicles.fuel, 
+            player_vehicles.engine, 
+            player_vehicles.body, 
+            player_vehicles.drivingdistance, 
+            player_vehicles.mods
+    `;
+
+    if (usingPsMdt) {
+        sql += `, mdt_data.pfp`;
+    }
+
+    if (usingPsHousing) {
+        sql += `, properties.door_data as house_coords`;
+    } else {
+        sql += `, houselocations.coords as house_coords`;
+    }
+
+    sql += `
         FROM players 
         LEFT JOIN player_vehicles ON players.citizenid = player_vehicles.citizenid
-        LEFT JOIN mdt_data ON players.citizenid = mdt_data.cid
     `;
+
+    if (usingPsMdt) {
+        sql += `LEFT JOIN mdt_data ON players.citizenid = mdt_data.cid `;
+    }
+
+    if (usingPsHousing) {
+        sql += `
+        LEFT JOIN properties ON players.citizenid = properties.owner_citizenid
+        `;
+    } else {
+        sql += `
+        LEFT JOIN player_houses ON players.citizenid = player_houses.citizenid
+        LEFT JOIN houselocations ON player_houses.house = houselocations.name
+        `;
+    }
 
     db.query(sql, (err, results) => {
         if (err) throw err;
@@ -71,11 +98,29 @@ app.get('/getData', (req, res) => {
                     inventory: row.inventory,
                     vehicles: [],
                 };
+    
                 if (usingPsMdt) {
                     acc[row.citizenid].pfp = row.pfp;
                 }
+    
+                if (usingPsHousing && row.house_coords) {
+                    const coords = JSON.parse(row.house_coords);
+                    console.log('Row data:', row);
+                    console.log(coords)
+                    acc[row.citizenid].house_coords = {
+                        x: coords.x,
+                        y: coords.y,
+                        z: coords.z
+                    };
+                } else if (!usingPsHousing && row.house_coords) {
+                    const coords = JSON.parse(row.house_coords);
+                    const enterCoords = coords.enter;
+                    acc[row.citizenid].house_coords = enterCoords;
+                } else {
+                    acc[row.citizenid].house_coords = null;
+                }                
             }
-
+    
             if (row.vehicle) {
                 acc[row.citizenid].vehicles.push({
                     vehicle: row.vehicle,
@@ -90,9 +135,9 @@ app.get('/getData', (req, res) => {
             }
             return acc;
         }, {});
-
+    
         res.json(Object.values(aggregatedResults));
-    });
+    });    
 });
 
 // Endpoint to save session duration

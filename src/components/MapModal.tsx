@@ -5,7 +5,15 @@ import GtaMap from './../mapassets/gtav-map-atlas-huge.jpg';
 import PlayerMarker from './../mapassets/user-solid.png';
 import HouseMarker from './../mapassets/house-solid.png';
 
-function MapModal({ open, handleClose, position, darkMode }: { open: boolean, handleClose: () => void, position: { x: number, y: number, z: number }, darkMode: boolean }) {
+interface DataItem {
+  x: number;
+  y: number;
+  z?: number;
+}
+
+type Coordinate = { x: number; y: number; z: number; };
+
+function MapModal({ open, handleClose, position, darkMode, house_coords }: { open: boolean, handleClose: () => void, position: { x: number, y: number, z: number }, darkMode: boolean, house_coords?: DataItem[]}) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   let map: L.Map;
   let marker: L.Marker;
@@ -53,8 +61,34 @@ function MapModal({ open, handleClose, position, darkMode }: { open: boolean, ha
           L.imageOverlay(imageUrl, imageBounds).addTo(map);
           marker = L.marker([position.y-YOffsetCoord, position.x], {icon: markerIcon}).addTo(map);
 
-          // Debug Marker
-          // marker = L.marker([69-YOffsetCoord, 69], {icon: houseIcon}).addTo(map); // dont mind this for now..
+          let coordsArray: Coordinate[] = [];
+
+          console.log('Received coordinates:', coordsArray);
+
+          if (Array.isArray(house_coords)) {
+            if (typeof house_coords[0] === 'string') {
+              coordsArray = (house_coords as unknown as string[]).map(coordStr => JSON.parse(coordStr) as Coordinate);
+            } else if (typeof house_coords[0] === 'object' && house_coords[0] !== null) {
+              coordsArray = house_coords as Coordinate[];
+            }
+          } else if (house_coords && typeof house_coords === 'object') {
+            coordsArray.push(house_coords as Coordinate);
+          } else {
+            console.error('Unexpected value for house_coords:', house_coords);
+            return;
+          }              
+          
+          coordsArray
+          .filter(coord => coord.x && coord.y)  // Filter out invalid coordinates
+          .forEach(coord => {
+              if (typeof coord.x === 'number' && typeof coord.y === 'number') {
+                  L.marker([coord.y-YOffsetCoord, coord.x], {icon: houseIcon}).addTo(map);
+              } else {
+                  console.error('Invalid coordinates:', coord);
+              }
+          });
+
+          
         } else {
           setTimeout(initializeMap, 100);
         }
@@ -88,7 +122,7 @@ function MapModal({ open, handleClose, position, darkMode }: { open: boolean, ha
         }}
       >
         <Typography id="map-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Player Coords: {position.x}, {position.y}, {position.z}</Typography>
-        {open && <div id="map" ref={mapRef} style={{ height: 650, width: '100%' }}></div>}
+        {open && <div id="map" ref={mapRef} style={{ height: '75vh', width: '100%' }}></div>}
       </Box>
     </Modal>
   );

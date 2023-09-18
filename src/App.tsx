@@ -11,10 +11,10 @@ import PlayerCard from './components/PlayerCard';
 import AnalyticsModal from './components/AnalyticsModal';
 import SearchFilters from './components/SearchFilters';
 import { getWealthPerJob } from './utils/helpers';
-import { UsingPsMdt } from './utils/config';
+import { UsingPsHousing, UsingPsMdt } from './utils/config';
 import InventoryModal from './components/InventoryModal';
 
-interface DataItem {
+interface PlayerDataItem {
   inventory: string;
   metadata: string;
   position: string;
@@ -29,6 +29,7 @@ interface DataItem {
   name: string;
   vehicles: string;
   pfp: string;
+  house_coords?: string[] | { x: number; y: number; z: number; }[];
 }
 
 interface AdminUsernames {
@@ -62,10 +63,10 @@ interface AppProps {
 
 function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps) {
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [filteredData, setFilteredData] = useState<DataItem[]>([]);
-  const [onlinePlayers, setOnlinePlayers] = useState<DataItem[]>([]);
+  const [filteredData, setFilteredData] = useState<PlayerDataItem[]>([]);
+  const [onlinePlayers, setOnlinePlayers] = useState<PlayerDataItem[]>([]);
   const [adminUserNames, setadminUserNames] = useState<AdminUsernames[]>([]);
-  const [data, setData] = useState<DataItem[]>([]);
+  const [data, setData] = useState<PlayerDataItem[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const theme = createTheme({
@@ -103,9 +104,10 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
   
   useEffect(() => {
     // Call our API endpoint and set data
-    axios.get<DataItem[]>('http://localhost:3001/getData', {
+    axios.get<PlayerDataItem[]>('http://localhost:3001/getData', {
       params: {
-        usingPsMdt: UsingPsMdt
+        usingPsMdt: UsingPsMdt,
+        usingPsHousing: UsingPsHousing
       }
     })
     .then(response => {
@@ -361,7 +363,7 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
 
     window.location.reload();
   }
-  console.log(loggedInUser); // If the page is just loading blank check this to see if the token is being set properly
+  // console.log(loggedInUser); // If the page is just loading blank check this to see if the token is being set properly
 
   return (
     <>
@@ -622,7 +624,7 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
                 <Container>
                   <div style={{ marginTop: theme.spacing(2) }}>  
                     {filteredData.map((item, index) => (
-                       <PlayerCard key={item.id || index} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} />
+                      <PlayerCard key={item.id || index} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} house_coords={item.house_coords || []} />
                     ))}
                   </div>
                 </Container>

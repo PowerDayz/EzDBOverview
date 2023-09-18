@@ -21,6 +21,7 @@
 
 Before diving into setup, ensure you have configured the application properly:
 - Go to `src/utils/config.ts` and set the `UsingPsMdt` to `false` if you are not using ps-mdt. If you are using it, you can leave it as `true`.
+- Change `UsingPsHousing` accordingly as well as `UsingPsMdt`
 
 ## **Pre-requisites**:
 

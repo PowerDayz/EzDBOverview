@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Avatar, Typography, Grid, Paper, Button, styled, Badge } from '@mui/material';
-import { Tab, Tabs, AppBar, Box } from '@mui/material';
+import { Tab, Tabs, Box } from '@mui/material';
 import { ChangeEvent } from 'react';
 import { formatMoney, getRandomColor } from '../utils/helpers';
 import InventoryModal from './InventoryModal';
 import MapModal from './MapModal';
 import VehicleModal from './VehicleModal';
 
-interface DataItem {
+interface PlayerDataItem {
   inventory: string;
   metadata: string;
   position: string;
@@ -22,6 +22,7 @@ interface DataItem {
   name: string;
   vehicles: string;
   pfp: string;
+  house_coords?: string[] | { x: number; y: number; z: number; }[];
 }
 
 interface TabPanelProps {
@@ -79,7 +80,7 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-function PlayerCard({ item, darkMode, onlinePlayers }: { item: DataItem, darkMode: boolean, onlinePlayers: DataItem[] }) {
+function PlayerCard({ item, darkMode, onlinePlayers }: { item: PlayerDataItem, darkMode: boolean, onlinePlayers: PlayerDataItem[], house_coords: string[] | { x: number; y: number; z: number; }[] }) {
   const [expanded, setExpanded] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
@@ -153,6 +154,10 @@ function PlayerCard({ item, darkMode, onlinePlayers }: { item: DataItem, darkMod
   const isOnline = onlinePlayers.some(player => player.citizenid === item.citizenid);
 
   const hasPfp = item.pfp && item.pfp !== "";
+
+  const transformedHouseCoords = typeof item.house_coords === 'string' 
+  ? JSON.parse(item.house_coords) 
+  : item.house_coords; 
 
   if (!item.license) {
     return null;
@@ -274,6 +279,7 @@ function PlayerCard({ item, darkMode, onlinePlayers }: { item: DataItem, darkMod
         handleClose={handleCloseMap}
         position={position}
         darkMode={darkMode}
+        house_coords={transformedHouseCoords}
       />
 
       <VehicleModal
