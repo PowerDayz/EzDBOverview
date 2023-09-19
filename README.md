@@ -73,7 +73,7 @@ npm start
 
 Your web app should now be running on `http://localhost:3000/` or the next available port, and you should be able to view and navigate through your database structure.
 
-### **7. Setting up on external server **:
+### **7. Setting up on external server**:
 
 - Goto `App.tsx` and change localhost to your servers external ip.
 - Make sure the port `3001` is open on the server.
