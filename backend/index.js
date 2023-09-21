@@ -17,7 +17,24 @@ require('dotenv').config();
 const secret = process.env.JWT_SECRET;
 
 // This will add the CORS headers to the response
-app.use(cors());
+app.use(cors()); // for local development
+
+/* use this instead if you want to deploy the backend on a server */
+// app.use(cors({
+//     origin: 'http://localhost:3000', // Replace With Server's IP address
+// }));
+// 
+// const path = require('path');
+// 
+// // Serve static files from the React frontend app
+// app.use(express.static(path.join(__dirname, 'path_to_your_build_directory')));
+// 
+// // Anything that doesn't match the above, send back the index.html file
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname + '/path_to_your_build_directory/index.html'));
+// });
+/* */
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -331,5 +348,5 @@ app.get('/fetchAllPlayers', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-   console.log(`Server started on http://localhost:${PORT}`);
+   console.log(`Server started on http://localhost:${PORT}`); // If you want to host this website on for example a VPS change "localhost" to "0.0.0.0"
 });

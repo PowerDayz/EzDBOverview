@@ -104,7 +104,7 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
   
   useEffect(() => {
     // Call our API endpoint and set data
-    axios.get<PlayerDataItem[]>('http://localhost:3001/getData', {
+    axios.get<PlayerDataItem[]>('http://localhost:3001/getData', { // If you're running this on a server change this to the server's IP address
       params: {
         usingPsMdt: UsingPsMdt,
         usingPsHousing: UsingPsHousing
@@ -126,7 +126,7 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
   }, [loggedInUser?.rank]);
 
   useEffect(() => {
-    axios.get('http://localhost:3001/getOnlinePlayers')
+    axios.get('http://localhost:3001/getOnlinePlayers') // If you're running this on a server change this to the server's IP address
       .then(response => {
         setOnlinePlayers(response.data); // <-- Set the online players here
       })
@@ -310,7 +310,7 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
   };
 
   const fetchAdminUsernames = () => {
-    axios.get('http://localhost:3001/getAdminUsernames')
+    axios.get('http://localhost:3001/getAdminUsernames') // If you're running this on a server change this to the server's IP address
       .then(response => {
         setadminUserNames(response.data);
       })
@@ -324,7 +324,7 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
   };
 
   const deleteAdmin = (username: string) => {
-    axios.delete(`http://localhost:3001/admin/${username}`)
+    axios.delete(`http://localhost:3001/admin/${username}`) // If you're running this on a server change this to the server's IP address
       .then(response => {
         setSnackbarMessage('Admin deleted successfully.');
         setSnackbarSeverity('success');
@@ -340,7 +340,7 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
   }
 
   const handleSaveChanges = () => {
-    axios.put('http://localhost:3001/admin', stagedAdminRoles)
+    axios.put('http://localhost:3001/admin', stagedAdminRoles) // If you're running this on a server change this to the server's IP address
       .then(response => {
         setSnackbarMessage('Roles updated successfully.');
         setSnackbarSeverity('success');
