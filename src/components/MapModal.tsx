@@ -41,6 +41,8 @@ function MapModal({ open, handleClose, position, darkMode, house_coords }: { ope
           map = L.map(mapRef.current, {
             crs: L.CRS.Simple,
             minZoom: -1.5,
+            zoomSnap: 0.5,
+            maxZoom: 1,
             center: [1500, 1500],
           }).setView([position.y-YOffsetCoord, position.x], -1.5);
 
