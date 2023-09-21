@@ -43,7 +43,7 @@ const db = createConnection({
    host: 'localhost',
    user: 'root',
    password: '',
-   database: 'qbcoreframework_b16ad6',
+   database: 'qbcoreframework_f20197',
 });
 
 db.connect((err) => {

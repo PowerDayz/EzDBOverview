@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, TextField, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions, Menu, MenuItem, Typography, List, ListItem, ListItemText, FormControl, InputLabel, Select, Grid, Snackbar, Alert } from '@mui/material';
+import { Container, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, TextField, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions, Menu, MenuItem, Typography, List, ListItem, ListItemText, FormControl, InputLabel, Select, Grid, Snackbar, Alert, Skeleton } from '@mui/material';
 import { Brightness4, Brightness7, Analytics } from '@mui/icons-material';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -59,6 +59,27 @@ interface AppProps {
   setLoggedInUser: (user: { username: string, rank: string } | null) => void;
   darkMode: boolean;
   setDarkMode?: (mode: boolean) => void;
+}
+
+function PlayerCardSkeleton({ darkMode }: { darkMode: boolean }) {
+  return (
+    <Box sx={{ backgroundColor: darkMode? '#242424' : '#EBEBEB', padding: 1.5, marginBottom: 1.3, borderRadius: 1 }}>
+      <Grid item container justifyContent="space-between">
+        <Skeleton variant="circular" width={40} height={40}/>
+        <Skeleton variant="text" sx={{ fontSize: '2rem', width: 150, marginLeft: 5 }} />
+        <Skeleton variant="text" sx={{ fontSize: '2rem', width: 100 }} />
+      </Grid>
+    </Box>
+  );
+}
+
+function AdminManageSkeleton() {
+  return (
+    <Grid item container justifyContent="space-between">
+      <Skeleton variant='text' sx={{ marginTop: 1, width: 50 }} />
+      <Skeleton variant='text' sx={{ marginTop: 1, width: 100 }} />
+    </Grid>
+  )
 }
 
 function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps) {
@@ -551,6 +572,9 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
                           </FormControl>
                         </ListItem>
                       ))}
+                      {adminUserNames.length === 0 && (
+                        Array.from({ length: 5 }).map((_, index) => <AdminManageSkeleton key={index} />)
+                      )}
                     </List>
                   </DialogContent>
                   <DialogActions>
@@ -622,10 +646,14 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
                 </Dialog>
 
                 <Container>
-                  <div style={{ marginTop: theme.spacing(2) }}>  
-                    {filteredData.map((item, index) => (
-                      <PlayerCard key={item.id || index} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} house_coords={item.house_coords || []} />
-                    ))}
+                  <div style={{ marginTop: theme.spacing(2) }}>
+                    {filteredData.length === 0 ? (
+                      Array.from({ length: 5 }).map((_, index) => <PlayerCardSkeleton key={index} darkMode={darkMode} />)
+                    ) : (
+                      filteredData.map((item, index) => (
+                        <PlayerCard key={item.id || index} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} house_coords={item.house_coords || []} />
+                      ))
+                    )}
                   </div>
                 </Container>
               </>

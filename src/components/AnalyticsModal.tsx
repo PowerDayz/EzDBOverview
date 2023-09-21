@@ -1,4 +1,4 @@
-import { Box, Chip, Grid, Modal, Tooltip, Typography } from "@mui/material";
+import { Box, Chip, Grid, Modal, Tooltip, Typography, Skeleton } from "@mui/material";
 import { Bar, BarChart, CartesianGrid, PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, XAxis, YAxis } from "recharts";
 import { Tooltip as RechartsTooltip } from 'recharts';
 import { formatMoney } from "../utils/helpers";
@@ -18,13 +18,88 @@ type AnalyticsData = {
     count: number;
   }[];
   totalCars: number;
-};  
+};
 
 function AnalyticsModal({ open, handleClose, data, darkMode, theme }: { open: boolean, handleClose: () => void, data: AnalyticsData, darkMode: boolean, theme: any }) {
   const dataForBarChart = [
     { name: 'Richest Player', value: data.richestPlayerMoney },
     { name: 'Average Wealth', value: data.averageMoney },
   ];
+
+  if (!data.richestPlayer) {
+    return (
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="analytics-modal-title"
+        aria-describedby="analytics-modal-description"
+        sx={{ overflowY: 'scroll' }}
+      >
+        <Box
+          style={{ 
+            width: '60%', 
+            margin: '5% auto', 
+            backgroundColor: darkMode ? 'rgb(51,51,51,0.8)' : 'rgb(255,255,255,0.8)', 
+            padding: '20px', 
+            outline: 'none', 
+            color: darkMode ? 'white' : 'black' 
+          }}
+        >
+          <Typography id="analytics-modal-title" variant="h5" style={{ marginBottom: 20, userSelect: 'none' }}>Server Statistics</Typography>
+          <Grid
+            container
+            direction="row"
+            justifyContent="space-between"
+            alignItems="flex-start"
+            sx={{ marginBottom: 2.5 }}
+          >
+            <Grid item>
+              <Skeleton variant="text" width={180} height={20} />
+              <Skeleton variant="text" width={250} height={20} />
+              <Skeleton variant="text" width={130} height={20} />
+            </Grid>
+            <Grid item>
+              <Skeleton variant="text" width={180} height={20} />
+              <Skeleton variant="text" width={280} height={20} />
+              <Skeleton variant="text" width={190} height={20} />
+            </Grid>
+          </Grid>
+
+          <Grid
+            container
+            direction="row"
+            justifyContent="space-around"
+            alignItems="center"
+          >
+            <Skeleton variant="rectangular" width={400} height={400} sx={{ borderRadius: 1.5, marginRight: 15 }} />
+            <Skeleton variant="rectangular" width={400} height={400} sx={{ borderRadius: 1.5 }} />
+          </Grid>
+
+          <Grid
+            container
+            direction="row"
+            justifyContent="space-evenly"
+            alignItems="center"
+            spacing={2}
+            sx={{ marginTop: 1.5 }}
+          >
+            <Grid item>
+              <Skeleton variant="circular" width={50} height={35} sx={{ borderRadius: 6 }}/>
+            </Grid>
+            <Grid item>
+              <Skeleton variant="circular" width={50} height={35} sx={{ borderRadius: 6 }}/>
+            </Grid>
+            <Grid item>
+              <Skeleton variant="circular" width={50} height={35} sx={{ borderRadius: 6 }}/>
+            </Grid>
+            <Grid item>
+              <Skeleton variant="circular" width={50} height={35} sx={{ borderRadius: 6 }}/>
+            </Grid>
+          </Grid>
+        </Box>
+      </Modal>
+    );
+  }
 
   return (
     <Modal
