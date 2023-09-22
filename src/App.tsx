@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, TextField, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions, Menu, MenuItem, Typography, List, ListItem, ListItemText, FormControl, InputLabel, Select, Grid, Snackbar, Alert, Skeleton } from '@mui/material';
+import { Container, createTheme, IconButton, ThemeProvider, CssBaseline, AppBar, Toolbar, TextField, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, Button, DialogActions, Menu, MenuItem, Typography, List, ListItem, ListItemText, FormControl, InputLabel, Select, Grid, Snackbar, Alert, Skeleton, Tab, Tabs } from '@mui/material';
 import { Brightness4, Brightness7, Analytics } from '@mui/icons-material';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
@@ -13,6 +13,7 @@ import SearchFilters from './components/SearchFilters';
 import { getWealthPerJob } from './utils/helpers';
 import { UsingPsHousing, UsingPsMdt } from './utils/config';
 import InventoryModal from './components/InventoryModal';
+import StashCard from './components/StashCard';
 
 interface PlayerDataItem {
   inventory: string;
@@ -30,6 +31,12 @@ interface PlayerDataItem {
   vehicles: string;
   pfp: string;
   house_coords?: string[] | { x: number; y: number; z: number; }[];
+}
+
+interface Stash {
+  id: number;
+  stash: string;
+  items: any[];
 }
 
 interface AdminUsernames {
@@ -153,6 +160,18 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
       })
       .catch(error => {
         console.error("There was an error fetching online players", error);
+      });
+  }, []);
+
+  const [stashes, setStashes] = useState<Stash[]>([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/getStashes')
+      .then(response => {
+        setStashes(response.data);
+      })
+      .catch(error => {
+        console.error("Error fetching stashes:", error);
       });
   }, []);
 
@@ -386,6 +405,11 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
   }
   // console.log(loggedInUser); // If the page is just loading blank check this to see if the token is being set properly
 
+  const [tabValue, setTabValue] = useState(0);
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
   return (
     <>
       <style>{`
@@ -414,6 +438,21 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
 
       <ThemeProvider theme={theme}>
         <CssBaseline />
+
+        <Container
+          sx={{
+            position: 'fixed',
+            width: 300,
+            top: 80,
+            left: -10,
+          }}
+        >
+          <Tabs orientation="vertical" value={tabValue} onChange={handleTabChange} sx={{ "& .MuiTabs-indicator": { left: 0, right: "auto" }}}>
+            <Tab label="Players" sx={{ marginBottom: 1, backgroundColor: darkMode ? 'rgb(36,36,36)' : 'rgb(235,235,235)'}}/>
+            <Tab label="Stashes" sx={{ marginBottom: 1, backgroundColor: darkMode ? 'rgb(36,36,36)' : 'rgb(235,235,235)'}}/>
+          </Tabs>
+        </Container>
+
         <Container>
           {loggedInUser === null && (
             <Dialog open={true}>
@@ -446,7 +485,7 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
                         <AccountBoxIcon />
                       </IconButton>
                     </Tooltip>
-              
+
                     <Tooltip title="Change Theme!" placement='bottom' arrow>
                       <IconButton onClick={() => handleDarkModeToggle()} edge="start" color="inherit">
                         {darkMode ? <Brightness7 /> : <Brightness4 />}
@@ -599,23 +638,6 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </Menu>
 
-                <div style={{ marginTop: theme.spacing(10) }}>
-                  <TextField
-                    variant="standard"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search for player by steam name..."
-                    style={{ width: '100%', marginBottom: theme.spacing(2) }}
-                  />
-                </div>
-
-                <SearchFilters 
-                  SearchFilter={SearchFilter}
-                  setSearchFilter={setSearchFilter}
-                  darkMode={darkMode}
-                  theme={theme}
-                />
-
                 <Dialog open={converterOpen} onClose={handleCloseConverter}>
                   <DialogTitle>Inventory Log Converter</DialogTitle>
                   <DialogContent>
@@ -645,17 +667,59 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
                   </DialogActions>
                 </Dialog>
 
-                <Container>
-                  <div style={{ marginTop: theme.spacing(2) }}>
-                    {filteredData.length === 0 ? (
-                      Array.from({ length: 5 }).map((_, index) => <PlayerCardSkeleton key={index} darkMode={darkMode} />)
-                    ) : (
-                      filteredData.map((item, index) => (
-                        <PlayerCard key={item.id || index} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} house_coords={item.house_coords || []} />
-                      ))
-                    )}
-                  </div>
-                </Container>
+                {tabValue === 0 && (
+                  <>
+                    <div style={{ marginTop: theme.spacing(10) }}>
+                      <TextField
+                        variant="standard"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search for player by steam name..."
+                        style={{ width: '100%', marginBottom: theme.spacing(2) }}
+                      />
+                    </div>
+
+                    <SearchFilters 
+                      SearchFilter={SearchFilter}
+                      setSearchFilter={setSearchFilter}
+                      darkMode={darkMode}
+                      theme={theme}
+                    />
+
+                    <Container>
+                      <div style={{ marginTop: theme.spacing(2) }}>
+                        {filteredData.length === 0 ? (
+                          Array.from({ length: 5 }).map((_, index) => <PlayerCardSkeleton key={index} darkMode={darkMode} />)
+                        ) : (
+                          filteredData.map((item, index) => (
+                            <PlayerCard key={item.id || index} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} house_coords={item.house_coords || []} />
+                          ))
+                        )}
+                      </div>
+                    </Container>
+                  </>
+                )}
+
+                {tabValue === 1 && (
+                  <>
+                    <div style={{ marginTop: theme.spacing(10) }}>
+                      <TextField
+                        variant="standard"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search for stash..."
+                        style={{ width: '100%', marginBottom: theme.spacing(2) }}
+                      />
+                    </div>
+
+                    <Container>
+                      <div style={{ marginTop: theme.spacing(2) }}>
+                        {stashes.map(stash => <StashCard key={stash.id} stash={stash} />)}
+                      </div>
+                    </Container>
+
+                  </>
+                )}
               </>
             )
           }

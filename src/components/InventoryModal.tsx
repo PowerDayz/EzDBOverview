@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Tooltip, Typography, Grid, Modal, Box } from "@mui/material";
+import ItemDisplay from "./ItemDisplay";
 
 interface InventoryItem {
   amount: number;
@@ -13,20 +14,6 @@ interface InventoryItem {
 function InventoryModal({ inventory, open, handleClose, darkMode, onClose }: { inventory: InventoryItem[], open: boolean, handleClose: () => void, darkMode: boolean, onClose?: (event: React.SyntheticEvent, reason: "backdropClick" | "escapeKeyDown") => void}) {
   const slotSize = 125; // Square size for each slot (125 looks the best in my opinion)
   const inventorySlots = 41; // Max inventory slots (Change this if you have a different max inventory slots)
-
-  const [copiedItem, setCopiedItem] = useState<string | null>(null);
-
-  const getImageSrc = (itemName: string) => {
-    const imagePath = `${process.env.PUBLIC_URL}/images/${itemName}.png`;
-    return imagePath;
-  };
-
-  const copyToClipboard = (itemName: string) => {
-    navigator.clipboard.writeText(itemName).then(() => {
-      setCopiedItem(itemName);
-      setTimeout(() => setCopiedItem(null), 2000); // Reset after 2 seconds
-    });
-  };
 
   const inventoryArray = Array.isArray(inventory) ? inventory.filter(item => item !== null) : [];
 
@@ -58,13 +45,7 @@ function InventoryModal({ inventory, open, handleClose, darkMode, onClose }: { i
             return (
               <Grid item xs={3} key={index} style={{ width: slotSize, height: slotSize+45, minWidth: slotSize, maxWidth: slotSize, border: '1px solid #3c97e9', padding: '10px', marginRight: 3, marginBottom: 3 }}>
                 {item && (
-                  <Tooltip title={copiedItem === item.name ? "Copied!" : "Click to copy name"} placement='top' arrow>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }} onClick={() => copyToClipboard(item.name)}>
-                      <Typography variant="body1" style={{ userSelect: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: slotSize-20, marginBottom: 4 }}>{item.amount}</Typography>
-                      <img src={getImageSrc(item.name)} onError={(e) => { e.currentTarget.src = `${process.env.PUBLIC_URL}/images/default.png`; }} alt={item.name} style={{ width: slotSize-20, height: slotSize-20, userSelect: 'none', marginBottom: 4 }} />
-                      <Typography variant="body1" style={{ userSelect: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: slotSize-20 }}>{item.name}</Typography>
-                    </div>
-                  </Tooltip>
+                  <ItemDisplay name={item.name} amount={item.amount} />
                 )}
               </Grid>
             );

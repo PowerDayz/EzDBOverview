@@ -65,8 +65,6 @@ function MapModal({ open, handleClose, position, darkMode, house_coords }: { ope
 
           let coordsArray: Coordinate[] = [];
 
-          console.log('Received coordinates:', coordsArray);
-
           if (Array.isArray(house_coords)) {
             if (typeof house_coords[0] === 'string') {
               coordsArray = (house_coords as unknown as string[]).map(coordStr => JSON.parse(coordStr) as Coordinate);

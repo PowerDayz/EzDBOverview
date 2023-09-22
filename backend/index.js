@@ -80,6 +80,7 @@ app.get('/getData', (req, res) => {
     sql += `
         FROM players 
         LEFT JOIN player_vehicles ON players.citizenid = player_vehicles.citizenid
+        LEFT JOIN stashitems ON players.name = stashitems.stash
     `;
 
     if (usingPsMdt) {
@@ -114,30 +115,26 @@ app.get('/getData', (req, res) => {
                     metadata: row.metadata,
                     inventory: row.inventory,
                     vehicles: [],
+                    house_coords: []
                 };
-    
+        
                 if (usingPsMdt) {
                     acc[row.citizenid].pfp = row.pfp;
-                }
-    
-                if (usingPsHousing && row.house_coords) {
-                    const coords = JSON.parse(row.house_coords);
-                    console.log('Row data:', row);
-                    console.log(coords)
-                    acc[row.citizenid].house_coords = {
-                        x: coords.x,
-                        y: coords.y,
-                        z: coords.z
-                    };
-                } else if (!usingPsHousing && row.house_coords) {
-                    const coords = JSON.parse(row.house_coords);
-                    const enterCoords = coords.enter;
-                    acc[row.citizenid].house_coords = enterCoords;
-                } else {
-                    acc[row.citizenid].house_coords = null;
-                }                
+                }        
             }
-    
+        
+            if (usingPsHousing && row.house_coords) {
+                const coords = JSON.parse(row.house_coords);
+                acc[row.citizenid].house_coords.push({
+                    x: coords.x,
+                    y: coords.y,
+                    z: coords.z
+                });
+            } else if (!usingPsHousing && row.house_coords) {
+                const coords = JSON.parse(row.house_coords).enter;
+                acc[row.citizenid].house_coords.push(coords);
+            }              
+        
             if (row.vehicle) {
                 acc[row.citizenid].vehicles.push({
                     vehicle: row.vehicle,
@@ -150,11 +147,21 @@ app.get('/getData', (req, res) => {
                     mods: row.mods,
                 });
             }
+
             return acc;
-        }, {});
+        }, {});        
     
         res.json(Object.values(aggregatedResults));
     });    
+});
+
+app.get('/getStashes', (req, res) => {
+    const sql = `SELECT * FROM stashitems`;
+
+    db.query(sql, (err, results) => {
+        if (err) throw err;
+        res.json(results);
+    });
 });
 
 // Endpoint to save session duration

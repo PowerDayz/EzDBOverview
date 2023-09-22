@@ -75,7 +75,7 @@ Your web app should now be running on `http://localhost:3000/` or the next avail
 
 ### **7. Setting up on external server**:
 
-- Goto `App.tsx` and change localhost to you're server's ip.
+- Goto `App.tsx` and `StashCard.tsx` and change localhost to you're server's ip.
 - Goto `index.js` in `EzDBOverview\backend` and change localhost to you're server's ip.
 - Make sure the port `3001` is open on the server.
 - Build a production build using `npm run build`.
