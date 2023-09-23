@@ -40,18 +40,18 @@ function StashCard({ stash }: { stash: Stash }) {
           </Typography>
         </Grid>
         {expanded && stash.items && JSON.parse(stash.items as unknown as string).map((stashItem: any, index: number) => (
-            <Grid
-                item
-                xs={12}
-                sx={{
-                    marginTop: 2,
-                    borderTop: 1,
-                    borderColor: 'divider',
-                    marginBottom: 2,
-                }}
-            >
-                <ItemDisplay key={index} name={stashItem.name} amount={stashItem.amount} onClick={(e) => e.stopPropagation()} />
-            </Grid>
+          <Grid
+            item
+            xs={12}
+            sx={{
+              marginTop: 2,
+              borderTop: 1,
+              borderColor: 'divider',
+              marginBottom: 2,
+            }}
+          >
+            <ItemDisplay key={index} name={stashItem.name} amount={stashItem.amount} onClick={(e) => e.stopPropagation()} />
+          </Grid>
         ))}
       </Grid>
     </Paper>

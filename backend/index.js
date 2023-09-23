@@ -64,7 +64,8 @@ app.get('/getData', (req, res) => {
             player_vehicles.engine, 
             player_vehicles.body, 
             player_vehicles.drivingdistance, 
-            player_vehicles.mods
+            player_vehicles.mods,
+            apartments.name as apartment_name
     `;
 
     if (usingPsMdt) {
@@ -81,6 +82,7 @@ app.get('/getData', (req, res) => {
         FROM players 
         LEFT JOIN player_vehicles ON players.citizenid = player_vehicles.citizenid
         LEFT JOIN stashitems ON players.name = stashitems.stash
+        LEFT JOIN apartments ON players.citizenid = apartments.citizenid
     `;
 
     if (usingPsMdt) {
@@ -100,6 +102,7 @@ app.get('/getData', (req, res) => {
 
     db.query(sql, (err, results) => {
         if (err) throw err;
+        
         const aggregatedResults = results.reduce((acc, row) => {
             if (!acc[row.citizenid]) {
                 acc[row.citizenid] = {
@@ -146,6 +149,10 @@ app.get('/getData', (req, res) => {
                     drivingdistance: row.drivingdistance,
                     mods: row.mods,
                 });
+            }
+
+            if (row.apartment_name) {
+                acc[row.citizenid].apartment_name = row.apartment_name;
             }
 
             return acc;

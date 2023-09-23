@@ -31,6 +31,7 @@ interface PlayerDataItem {
   vehicles: string;
   pfp: string;
   house_coords?: string[] | { x: number; y: number; z: number; }[];
+  apartment_name?: string;
 }
 
 interface Stash {
@@ -75,6 +76,17 @@ function PlayerCardSkeleton({ darkMode }: { darkMode: boolean }) {
         <Skeleton variant="circular" width={40} height={40}/>
         <Skeleton variant="text" sx={{ fontSize: '2rem', width: 150, marginLeft: 5 }} />
         <Skeleton variant="text" sx={{ fontSize: '2rem', width: 100 }} />
+      </Grid>
+    </Box>
+  );
+}
+
+function StashCardSkeleton({ darkMode }: { darkMode: boolean }) {
+  return (
+    <Box sx={{ backgroundColor: darkMode? '#242424' : '#EBEBEB', padding: 1.5, marginBottom: 1.3, borderRadius: 1 }}>
+      <Grid item container justifyContent="space-between">
+        <Skeleton variant="circular" width={30} height={30} sx={{ marginTop: 1 }}/>
+        <Skeleton variant="text" sx={{ fontSize: '2rem', width: 150, marginLeft: 5 }} />
       </Grid>
     </Box>
   );
@@ -164,6 +176,7 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
   }, []);
 
   const [stashes, setStashes] = useState<Stash[]>([]);
+  const [StashsearchTerm, setStashSearchTerm] = useState<string>('');
 
   useEffect(() => {
     axios.get('http://localhost:3001/getStashes')
@@ -174,6 +187,8 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
         console.error("Error fetching stashes:", error);
       });
   }, []);
+
+  const filteredStashes = stashes.filter(stash => stash.stash.toLowerCase().includes(StashsearchTerm.toLowerCase()));
 
   useEffect(() => {
     let results = data.filter(item => 
@@ -410,6 +425,14 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
     setTabValue(newValue);
   };
 
+  useEffect(() => {
+    if (tabValue === 1) {
+      setSearchTerm('');
+    } else if (tabValue === 0) {
+      setStashSearchTerm('');
+    }
+  }, [tabValue]);
+  
   return (
     <>
       <style>{`
@@ -688,11 +711,11 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
 
                     <Container>
                       <div style={{ marginTop: theme.spacing(2) }}>
-                        {filteredData.length === 0 ? (
-                          Array.from({ length: 5 }).map((_, index) => <PlayerCardSkeleton key={index} darkMode={darkMode} />)
+                        {filteredData.length === 0 && searchTerm.length === 0 ? (
+                          Array.from({ length: Math.floor(Math.random() * (10 - 1 + 1)) + 1 }).map((_, index) => <PlayerCardSkeleton key={index} darkMode={darkMode} />)
                         ) : (
                           filteredData.map((item, index) => (
-                            <PlayerCard key={item.id || index} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} house_coords={item.house_coords || []} />
+                            <PlayerCard setStashSearchTerm={setStashSearchTerm} setParentTabValue={setTabValue} key={item.id || index} item={item} darkMode={darkMode} onlinePlayers={onlinePlayers} house_coords={item.house_coords || []} />
                           ))
                         )}
                       </div>
@@ -705,19 +728,24 @@ function App({ loggedInUser, setLoggedInUser, darkMode, setDarkMode }: AppProps)
                     <div style={{ marginTop: theme.spacing(10) }}>
                       <TextField
                         variant="standard"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        value={StashsearchTerm}
+                        onChange={(e) => setStashSearchTerm(e.target.value)}
                         placeholder="Search for stash..."
                         style={{ width: '100%', marginBottom: theme.spacing(2) }}
                       />
                     </div>
-
+                
                     <Container>
                       <div style={{ marginTop: theme.spacing(2) }}>
-                        {stashes.map(stash => <StashCard key={stash.id} stash={stash} />)}
+                        {filteredStashes.length === 0 && StashsearchTerm.length === 0 ? (
+                          Array.from({ length: Math.floor(Math.random() * (10 - 1 + 1)) + 1 }).map((_, index) => (
+                            <StashCardSkeleton key={index} darkMode={darkMode} />
+                          ))
+                        ) : (
+                          filteredStashes.map(stash => <StashCard key={stash.id} stash={stash} />)
+                        )}
                       </div>
                     </Container>
-
                   </>
                 )}
               </>

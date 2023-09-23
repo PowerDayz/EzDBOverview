@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Avatar, Typography, Grid, Paper, Button, styled, Badge } from '@mui/material';
+import { Avatar, Typography, Grid, Paper, Button, styled, Badge, Chip, Tooltip } from '@mui/material';
 import { Tab, Tabs, Box } from '@mui/material';
 import { ChangeEvent } from 'react';
 import { formatMoney, getRandomColor } from '../utils/helpers';
 import InventoryModal from './InventoryModal';
 import MapModal from './MapModal';
 import VehicleModal from './VehicleModal';
+import ApartmentIcon from '@mui/icons-material/Apartment';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 
 interface PlayerDataItem {
   inventory: string;
@@ -23,6 +25,7 @@ interface PlayerDataItem {
   vehicles: string;
   pfp: string;
   house_coords?: string[] | { x: number; y: number; z: number; }[];
+  apartment_name?: string;
 }
 
 interface TabPanelProps {
@@ -80,7 +83,7 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-function PlayerCard({ item, darkMode, onlinePlayers }: { item: PlayerDataItem, darkMode: boolean, onlinePlayers: PlayerDataItem[], house_coords: string[] | { x: number; y: number; z: number; }[] }) {
+function PlayerCard({ item, darkMode, onlinePlayers, setParentTabValue, setStashSearchTerm }: { item: PlayerDataItem, darkMode: boolean, onlinePlayers: PlayerDataItem[], setParentTabValue: React.Dispatch<React.SetStateAction<number>>, setStashSearchTerm: React.Dispatch<React.SetStateAction<string>>, house_coords: string[] | { x: number; y: number; z: number; }[] }) {
   const [expanded, setExpanded] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
@@ -135,6 +138,12 @@ function PlayerCard({ item, darkMode, onlinePlayers }: { item: PlayerDataItem, d
     const pos = JSON.parse(item.position);
     setPosition(pos);
   }, [item.position]);
+
+  const handleApartmentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setParentTabValue(1);
+    setStashSearchTerm(item.apartment_name || "");
+  };
 
   // data ig lmao
   const moneyData = JSON.parse(item.money);
@@ -224,6 +233,36 @@ function PlayerCard({ item, darkMode, onlinePlayers }: { item: PlayerDataItem, d
                 <Button onClick={handleOpenMap}>Open Map</Button>
                 <Button onClick={handleOpenInventory}>Open Inventory</Button>
                 <Button onClick={handleOpenVehicle}>Open Vehicles</Button>
+
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="flex-start"
+                >
+                  <Tooltip title="Click to view stash" arrow>
+                    <Chip
+                      label={`#${item.apartment_name}`}
+                      clickable
+                      onClick={handleApartmentClick}
+                      color="primary"
+                      size='small'
+                      variant='filled'
+                      icon={<ApartmentIcon />}
+                      sx={{ marginRight: 1, marginTop: 1 }}
+                    />
+                  </Tooltip>
+
+                  <Chip
+                    label="Will add house stashes soon"
+                    clickable
+                    onClick={handleTextMouseDown}
+                    color="secondary"
+                    size='small'
+                    variant='filled'
+                    icon={<Inventory2Icon />}
+                    sx={{ marginRight: 1, marginTop: 1 }}
+                  />
+                </Grid>
               </TabPanel>
               <TabPanel value={tabValue} index={1}>
                 <Typography className="truncate" onClick={handleTextMouseDown}>
