@@ -21,7 +21,7 @@ app.use(cors()); // for local development
 
 /* use this instead if you want to deploy the backend on a server */
 // app.use(cors({
-//     origin: 'http://localhost:3000', // Replace With Server's IP address
+//     origin: 'http://localhost:3001', // Replace With Server's IP address
 // }));
 // 
 // const path = require('path');
